@@ -1,5 +1,6 @@
 # Travelohealth
-Berikut rancangan isi pada masing masing halaman
+Pageflow dari aplikasi ini dapat dilihat pada gambar https://github.com/Daneswara/Travelohealth/blob/master/pageflow.JPG Berikut rancangan isi pada masing masing halaman
+
 # Transaksi
 
 -Transaksi yang sedang berlangsung
