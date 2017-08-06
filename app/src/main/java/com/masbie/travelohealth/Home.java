@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class Home extends AppCompatActivity {
@@ -54,7 +55,13 @@ public class Home extends AppCompatActivity {
         }
 
     };
+    String androidListViewStrings[] = {"Android ListView Example", "Android Custom ListView Example", "Custom ListView Example",
+            "Android List Adapter", "Custom Adapter ListView", "ListView Tutorial",
+            "ListView with Image and Text", "Custom ListView Text and Image", "ListView Custom Tutorial"};
 
+    Integer image_id[] = {R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
+            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
+            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +77,10 @@ public class Home extends AppCompatActivity {
         f4.setVisibility(View.GONE);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        AdapterTransaksiSekarang androidListAdapter = new AdapterTransaksiSekarang(this, image_id, androidListViewStrings);
+        ListView androidListView = (ListView) findViewById(R.id.custom_listview_transaksi_sekarang);
+        androidListView.setAdapter(androidListAdapter);
     }
 
 }
