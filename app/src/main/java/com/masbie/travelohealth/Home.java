@@ -55,13 +55,9 @@ public class Home extends AppCompatActivity {
         }
 
     };
-    String androidListViewStrings[] = {"Android ListView Example", "Android Custom ListView Example", "Custom ListView Example",
-            "Android List Adapter", "Custom Adapter ListView", "ListView Tutorial",
-            "ListView with Image and Text", "Custom ListView Text and Image", "ListView Custom Tutorial"};
+    String androidListViewStrings[] = {"Android ListView Example", "Android Custom ListView Example", "Custom ListView Example"};
 
-    Integer image_id[] = {R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher};
+    Integer image_id[] = {R.color.colorAccent, R.color.colorAccent, R.color.colorAccent};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +77,10 @@ public class Home extends AppCompatActivity {
         AdapterTransaksiSekarang androidListAdapter = new AdapterTransaksiSekarang(this, image_id, androidListViewStrings);
         ListView androidListView = (ListView) findViewById(R.id.custom_listview_transaksi_sekarang);
         androidListView.setAdapter(androidListAdapter);
+
+        AdapterDokter androidListDokter = new AdapterDokter(this, image_id, androidListViewStrings);
+        ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
+        androidListViewDokter.setAdapter(androidListDokter);
     }
 
 }
