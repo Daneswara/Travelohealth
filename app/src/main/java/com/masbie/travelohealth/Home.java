@@ -81,6 +81,10 @@ public class Home extends AppCompatActivity {
         AdapterDokter androidListDokter = new AdapterDokter(this, image_id, androidListViewStrings);
         ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
         androidListViewDokter.setAdapter(androidListDokter);
+
+        AdapterLayanan androidListLayanan = new AdapterLayanan(this, image_id, androidListViewStrings);
+        ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
+        androidListViewLayanan.setAdapter(androidListLayanan);
     }
 
 }

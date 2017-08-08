@@ -20,8 +20,8 @@
 
         <ListView
             android:id="@+id/custom_listview_transaksi_sekarang"
-            android:layout_margin="8dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -35,15 +35,12 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/layanantext"
+        <ListView
+            android:id="@+id/custom_listview_layanan"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Layanan nya" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
@@ -56,8 +53,8 @@
 
         <ListView
             android:id="@+id/custom_listview_dokter"
-            android:layout_margin="8dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -70,15 +67,12 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textkamar"
+        <ListView
+            android:id="@+id/custom_listview_kamar"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Kamar nya" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

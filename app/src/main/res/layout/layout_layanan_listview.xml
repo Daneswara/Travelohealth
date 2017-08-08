@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/image_view"
             android:gravity="center"
-            android:text="Dokter Adi"
+            android:text="Poli Gigi"
             android:textSize="30sp" />
     </RelativeLayout>
 
@@ -37,7 +37,7 @@
             android:gravity="center"
             android:layout_gravity="center"
             android:background="@color/colorWhite"
-            android:text="Praktek \n 07.00-09.00"
+            android:text="Buka \n 07.00-09.00"
             android:textColor="#000"
             android:textSize="15sp"
             android:textStyle="bold" />
