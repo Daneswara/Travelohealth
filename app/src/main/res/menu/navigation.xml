@@ -21,4 +21,9 @@
         android:icon="@drawable/ic_airline_seat_flat"
         android:title="@string/title_kamar" />
 
+    <item
+        android:id="@+id/navigation_akun"
+        android:icon="@drawable/ic_account_circle"
+        android:title="@string/title_akun" />
+
 </menu>

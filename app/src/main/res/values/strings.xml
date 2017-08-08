@@ -4,6 +4,7 @@
     <string name="title_layanan">Layanan</string>
     <string name="title_dokter">Dokter</string>
     <string name="title_kamar">Kamar</string>
+    <string name="title_akun">Akun</string>
     <string name="title_activity_detail_transaksi">Detail Transaksi</string>
     <string name="title_activity_pesan_dokter">Pesan Dokter</string>
     <string name="large_text">

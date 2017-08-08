@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 public class Home extends AppCompatActivity {
 
-    private LinearLayout fl, f2, f3, f4;
+    private LinearLayout fl, f2, f3, f4, f5;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -27,6 +27,7 @@ public class Home extends AppCompatActivity {
                     f2.setVisibility(View.GONE);
                     f3.setVisibility(View.GONE);
                     f4.setVisibility(View.GONE);
+                    f5.setVisibility(View.GONE);
                     setTitle("Transaksi");
                     return true;
                 case R.id.navigation_layanan:
@@ -34,6 +35,7 @@ public class Home extends AppCompatActivity {
                     f2.setVisibility(View.VISIBLE);
                     f3.setVisibility(View.GONE);
                     f4.setVisibility(View.GONE);
+                    f5.setVisibility(View.GONE);
                     setTitle("Layanan");
                     return true;
                 case R.id.navigation_dokter:
@@ -41,13 +43,23 @@ public class Home extends AppCompatActivity {
                     f2.setVisibility(View.GONE);
                     f3.setVisibility(View.VISIBLE);
                     f4.setVisibility(View.GONE);
+                    f5.setVisibility(View.GONE);
                     setTitle("Dokter");
                     return true;
                 case R.id.navigation_kamar:
                     fl.setVisibility(View.GONE);
                     f2.setVisibility(View.GONE);
                     f3.setVisibility(View.GONE);
+                    f5.setVisibility(View.GONE);
                     f4.setVisibility(View.VISIBLE);
+                    setTitle("Kamar");
+                    return true;
+                case R.id.navigation_akun:
+                    fl.setVisibility(View.GONE);
+                    f2.setVisibility(View.GONE);
+                    f3.setVisibility(View.GONE);
+                    f4.setVisibility(View.GONE);
+                    f5.setVisibility(View.VISIBLE);
                     setTitle("Kamar");
                     return true;
             }
@@ -67,11 +79,16 @@ public class Home extends AppCompatActivity {
         f2 = (LinearLayout) findViewById(R.id.layanan);
         f3 = (LinearLayout) findViewById(R.id.dokter);
         f4 = (LinearLayout) findViewById(R.id.kamar);
+        f5 = (LinearLayout) findViewById(R.id.akun);
         fl.setVisibility(View.VISIBLE);
         f2.setVisibility(View.GONE);
         f3.setVisibility(View.GONE);
         f4.setVisibility(View.GONE);
+        f5.setVisibility(View.GONE);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setItemBackgroundResource(R.color.colorPrimaryDark);
+        navigation.setItemTextColor(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
+        navigation.setItemIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         AdapterTransaksiSekarang androidListAdapter = new AdapterTransaksiSekarang(this, image_id, androidListViewStrings);
@@ -85,6 +102,10 @@ public class Home extends AppCompatActivity {
         AdapterLayanan androidListLayanan = new AdapterLayanan(this, image_id, androidListViewStrings);
         ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
         androidListViewLayanan.setAdapter(androidListLayanan);
+
+        AdapterKamar androidListKamar = new AdapterKamar(this, image_id, androidListViewStrings);
+        ListView androidListViewKamar = (ListView) findViewById(R.id.custom_listview_kamar);
+        androidListViewKamar.setAdapter(androidListKamar);
     }
 
 }
