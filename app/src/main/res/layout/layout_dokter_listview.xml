@@ -13,14 +13,17 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="200dp"
+            android:scaleType="centerCrop"
             android:layout_gravity="center_horizontal"
             android:src="@color/colorAccent" />
 
         <TextView
+            android:id="@+id/namadokter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/image_view"
             android:gravity="center"
+            android:textColor="@color/colorWhite"
             android:text="Dokter Adi"
             android:textSize="30sp" />
     </RelativeLayout>
@@ -31,6 +34,7 @@
         android:orientation="horizontal"
         android:weightSum="2">
         <TextView
+            android:id="@+id/jampraktek"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_weight="1"

@@ -13,24 +13,28 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:scaleType="centerCrop"
             android:layout_gravity="center_horizontal"
             android:src="@color/colorAccent" />
 
         <TextView
+            android:id="@+id/urutan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/image_view"
             android:gravity="center"
-            android:text="No. 12"
+            android:textColor="@color/colorWhite"
+            android:text="Nomer Urutan"
             android:textSize="50sp" />
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/antrianke"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:background="@color/colorWhite"
-        android:text="Saat ini antrian ke-2"
+        android:text="Saat ini antrian ke-"
         android:textColor="#000"
         android:textSize="15sp"
         android:textStyle="bold" />
@@ -44,12 +48,12 @@
         android:textColor="#000" />
 
     <TextView
-        android:id="@+id/text_view"
+        android:id="@+id/estimasipelayanan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
         android:gravity="center"
-        android:text="Custom Android ListView Example"
+        android:text="Estimasi"
         android:textColor="#000"
         android:textSize="15sp"
         android:textStyle="bold" />
@@ -63,15 +67,23 @@
         android:textColor="#000" />
 
     <TextView
-        android:id="@+id/text_perjalanan"
+        android:id="@+id/estimasiperjalanan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:background="@color/colorWhite"
-        android:text="Custom Android ListView Example"
+        android:text="Estimasi"
         android:textColor="#000"
         android:textSize="15sp"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:textColor="@color/colorWhite"
+        android:padding="10dp"
+        android:text="Lihat Peta Rumah Sakit"/>
 
 </LinearLayout>

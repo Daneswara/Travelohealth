@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.masbie.travelohealth.PesanKamar"
+    tools:showIn="@layout/activity_pesan_kamar">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/tanggal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginRight="@dimen/text_margin"
+            android:layout_marginTop="@dimen/text_margin"
+            android:background="@color/colorPrimary"
+            android:text="Tanggal Pemesanan"
+            android:textColor="@color/colorWhite"
+            android:padding="10dp"
+            android:textSize="16sp" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginRight="@dimen/text_margin"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="@dimen/text_margin"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/gambar"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:src="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/textupload"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Upload Gambar Surat Rujukan"
+                android:textColor="@color/colorWhite"
+                android:textSize="30sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>
