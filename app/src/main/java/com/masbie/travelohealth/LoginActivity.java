@@ -30,6 +30,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.masbie.travelohealth.api.ApiLogin;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -45,7 +48,15 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -53,7 +64,8 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/patient/auth/";
+    private Retrofit retrofit;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -102,11 +114,48 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
                 attemptLogin();
+                postMessage(mEmailView.getText().toString(), mPasswordView.getText().toString());
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        initializeRetrofit();
+
+    }
+
+    private void initializeRetrofit(){
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+
+    private void postMessage(String identity, String password){
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("identity", identity);
+        params.put("password", password);
+
+        ApiLogin apiService = retrofit.create(ApiLogin.class);
+        Call<ResponseBody> result = apiService.postMessage(params);
+        result.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    if(response.body()!=null)
+                        Toast.makeText(LoginActivity.this," response message "+response.body().string(),Toast.LENGTH_LONG).show();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
     private void populateAutoComplete() {
@@ -318,36 +367,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("identity", mEmail));
-            nameValuePairs.add(new BasicNameValuePair("password", mPassword));
-            try {
-                // Simulate network access.
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(
-                        "http://posyanduanak.com/mawar/loginadmin.php");
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-                HttpResponse response = httpClient.execute(httpPost);
-
-                HttpEntity entity = response.getEntity();
-
-                String responseAsString = EntityUtils.toString(response.getEntity());
-                System.out.println(responseAsString);
-                if(responseAsString.equals("0")){
-                    progressDialog.dismiss();
-                    return false;
-                } else {
-                    progressDialog.dismiss();
-                    return true;
-                }
-            }  catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
