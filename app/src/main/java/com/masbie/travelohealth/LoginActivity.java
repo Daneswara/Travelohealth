@@ -153,7 +153,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         startActivity(intent);
                         finish();
                     } else {
-                        mEmailView.setError("User ID atau Password anda kurang tepat");
                         mEmailView.requestFocus();
                     }
                 }catch (Exception e){
