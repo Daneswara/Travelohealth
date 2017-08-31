@@ -1,5 +1,7 @@
 package com.masbie.travelohealth.api;
 
+import com.masbie.travelohealth.pojo.Login;
+
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -16,5 +18,5 @@ public interface ApiLogin {
 
     @FormUrlEncoded
     @POST("login")
-    Call<ResponseBody> postMessage(@FieldMap HashMap<String, String> params);
+    Call<Login> postMessage(@FieldMap HashMap<String, String> params);
 }

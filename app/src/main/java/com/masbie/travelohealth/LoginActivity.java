@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.masbie.travelohealth.api.ApiLogin;
+import com.masbie.travelohealth.pojo.Login;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -113,7 +114,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                //attemptLogin();
                 postMessage(mEmailView.getText().toString(), mPasswordView.getText().toString());
             }
         });
@@ -139,20 +140,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         params.put("password", password);
 
         ApiLogin apiService = retrofit.create(ApiLogin.class);
-        Call<ResponseBody> result = apiService.postMessage(params);
-        result.enqueue(new Callback<ResponseBody>() {
+        Call<Login> result = apiService.postMessage(params);
+        result.enqueue(new Callback<Login>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<Login> call, Response<Login> response) {
                 try {
-                    if(response.body()!=null)
-                        Toast.makeText(LoginActivity.this," response message "+response.body().string(),Toast.LENGTH_LONG).show();
+                    if(response.body()!=null) {
+                        Toast.makeText(LoginActivity.this, " response message " + response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
+                    }
+                    if (response.body().getStatus()==1) {
+                        Intent intent = new Intent(LoginActivity.this, Home.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        mEmailView.setError("User ID atau Password anda kurang tepat");
+                        mEmailView.requestFocus();
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<Login> call, Throwable t) {
                 t.printStackTrace();
             }
         });
