@@ -146,14 +146,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onResponse(Call<Login> call, Response<Login> response) {
                 try {
                     if(response.body()!=null) {
-                        Toast.makeText(LoginActivity.this, " response message " + response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
-                    }
-                    if (response.body().getStatus()==1) {
-                        Intent intent = new Intent(LoginActivity.this, Home.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        mEmailView.requestFocus();
+                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
+                        if (response.body().getData().getStatus()==1) {
+                            Intent intent = new Intent(LoginActivity.this, Home.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            mEmailView.requestFocus();
+                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();
