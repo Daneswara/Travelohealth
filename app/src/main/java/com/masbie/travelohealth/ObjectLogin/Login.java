@@ -1,5 +1,5 @@
 
-package com.masbie.travelohealth.pojo;
+package com.masbie.travelohealth.ObjectLogin;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

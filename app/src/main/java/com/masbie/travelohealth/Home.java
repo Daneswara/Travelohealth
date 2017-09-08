@@ -1,6 +1,7 @@
 package com.masbie.travelohealth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,18 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.masbie.travelohealth.ObjectDoctor.Doctor;
+import com.masbie.travelohealth.api.ApiTravelohealth;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Home extends AppCompatActivity {
 
@@ -80,10 +93,6 @@ public class Home extends AppCompatActivity {
     int id_layanan[] = {1, 2};
     Integer image_layanan[] = {R.drawable.klinikpenyakitdalam, R.drawable.klinikgigi};
 
-    String text_dokter[] = {"Dokter Spesialis Organ Dalam", "Dokter Spesialis Gigi"};
-    String text_jampraktek[] = {"07.00-09.00", "19.00-21.00"};
-    int id_dokter[] = {1, 2};
-    Integer image_dokter[] = {R.drawable.dokterl, R.drawable.dokterp};
 
     String text_kamar[] = {"Kelas III", "Kelas II", "Kelas I", "Kelas VIP", "Kelas VVIP"};
     String harga[] = {"Rp. 110.000", "Rp. 440.000", "Rp. 550.000", "Rp. 880.000", "Rp. 1.870.000"};
@@ -95,7 +104,13 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0);
+        String token = pref.getString("token", null);
+        if(token == null){
+            Intent intent = new Intent(Home.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
         fl = (LinearLayout) findViewById(R.id.transaksi);
         f2 = (LinearLayout) findViewById(R.id.layanan);
         f3 = (LinearLayout) findViewById(R.id.dokter);
@@ -116,9 +131,7 @@ public class Home extends AppCompatActivity {
         ListView androidListView = (ListView) findViewById(R.id.custom_listview_transaksi_sekarang);
         androidListView.setAdapter(androidListAdapter);
 
-        AdapterDokter androidListDokter = new AdapterDokter(this, image_dokter, text_dokter, text_jampraktek, id_dokter);
-        ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
-        androidListViewDokter.setAdapter(androidListDokter);
+
 
         AdapterLayanan androidListLayanan = new AdapterLayanan(this, image_layanan, text_pelayanan, text_jamkerja, id_layanan);
         ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
@@ -137,6 +150,70 @@ public class Home extends AppCompatActivity {
                 finish();
             }
         });
+
+        initializeRetrofit();
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put("x-access-token", token);
+
+        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
+        Call<Doctor> result = apiService.showDoctor(map);
+        result.enqueue(new Callback<Doctor>() {
+
+            @Override
+            public void onResponse(Call<Doctor> call, Response<Doctor> response) {
+                try {
+                    if (response.body() != null) {
+                        int jumlahdokter = response.body().getData().getResult().size();
+                        // cek service ada atau tidak
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            if(response.body().getData().getResult().get(i).getService().size() == 0) {
+                                jumlahdokter--;
+                            }
+                        }
+
+                        String text_dokter[] = new String[jumlahdokter];
+                        String text_jampraktek[] = new String[jumlahdokter];
+                        int id_dokter[] = new int[jumlahdokter];
+                        Integer image_dokter[] = new Integer[jumlahdokter];
+                        int index = 0;
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            if(response.body().getData().getResult().get(i).getService().size() != 0) {
+                                System.out.println("id ke-" + index + " = " + response.body().getData().getResult().get(index).getId());
+                                text_dokter[index] = response.body().getData().getResult().get(index).getUsername();
+                                id_dokter[index] = Integer.parseInt(response.body().getData().getResult().get(index).getId());
+                                text_jampraktek[index] = response.body().getData().getResult().get(index).getService().get(0).getStart() + " - " +
+                                        response.body().getData().getResult().get(index).getService().get(0).getEnd();
+                                image_dokter[index] = R.drawable.dokterl;
+                                index++;
+                            }
+                        }
+
+                        AdapterDokter androidListDokter = new AdapterDokter(Home.this, image_dokter, text_dokter, text_jampraktek, id_dokter);
+                        ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
+                        androidListViewDokter.setAdapter(androidListDokter);
+                    }
+                } catch (Exception e) {
+                    System.out.println("ERROR:" + e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Doctor> call, Throwable t) {
+                System.out.println("ERROR:" + t);
+            }
+        });
+    }
+
+    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/";
+    private Retrofit retrofit;
+
+    private void initializeRetrofit() {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 
 }

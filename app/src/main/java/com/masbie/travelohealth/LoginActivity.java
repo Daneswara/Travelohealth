@@ -5,7 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,29 +32,16 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.masbie.travelohealth.api.ApiLogin;
-import com.masbie.travelohealth.pojo.Login;
+import com.masbie.travelohealth.ObjectRoom.Room;
+import com.masbie.travelohealth.api.ApiTravelohealth;
+import com.masbie.travelohealth.ObjectLogin.Login;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import okhttp3.ResponseBody;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -65,7 +54,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/patient/auth/";
+    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/";
     private Retrofit retrofit;
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -109,7 +98,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
-
+        mEmailView.setText("5AD4E8986608");
+        mPasswordView.setText("password");
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -124,6 +114,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         initializeRetrofit();
 
+
     }
 
     private void initializeRetrofit(){
@@ -132,27 +123,42 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
-
+    SweetAlertDialog pDialog;
     private void postMessage(String identity, String password){
-
+        pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setTitleText("Loading");
+        pDialog.setCancelable(false);
+        pDialog.show();
         HashMap<String, String> params = new HashMap<>();
         params.put("identity", identity);
         params.put("password", password);
 
-        ApiLogin apiService = retrofit.create(ApiLogin.class);
-        Call<Login> result = apiService.postMessage(params);
+        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
+        Call<Login> result = apiService.postLogin(params);
         result.enqueue(new Callback<Login>() {
             @Override
             public void onResponse(Call<Login> call, Response<Login> response) {
                 try {
                     if(response.body()!=null) {
-                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
                         if (response.body().getData().getStatus()==1) {
+                            pDialog.dismiss();
+                            SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0); // 0 - for private mode
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("token", response.body().getData().getToken().getToken());
+                            editor.putString("refresh", response.body().getData().getToken().getRefresh());
+                            editor.commit();
                             Intent intent = new Intent(LoginActivity.this, Home.class);
                             startActivity(intent);
                             finish();
                         } else {
                             mEmailView.requestFocus();
+                            pDialog.dismiss();
+                            new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+                                    .setTitleText("Login Gagal...")
+                                    .setContentText(response.body().getData().getMessage().getNotify().get(0).getM())
+                                    .show();
                         }
                     }
                 }catch (Exception e){
@@ -165,6 +171,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 t.printStackTrace();
             }
         });
+
+
     }
 
     private void populateAutoComplete() {
