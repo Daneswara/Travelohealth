@@ -1,7 +1,7 @@
 package com.masbie.travelohealth.ObjectDoctor;
 
 import java.util.List;
-
+//data
 public class Data{
 	private List<ResultItem> result;
 	private int status;
