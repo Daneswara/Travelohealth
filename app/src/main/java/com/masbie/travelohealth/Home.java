@@ -15,6 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.masbie.travelohealth.ObjectDoctor.Doctor;
+import com.masbie.travelohealth.ObjectPelayanan.Poli;
+import com.masbie.travelohealth.ObjectRoom.Room;
 import com.masbie.travelohealth.api.ApiTravelohealth;
 
 import java.util.HashMap;
@@ -106,7 +108,7 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0);
         String token = pref.getString("token", null);
-        if(token == null){
+        if (token == null) {
             Intent intent = new Intent(Home.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -131,15 +133,6 @@ public class Home extends AppCompatActivity {
         ListView androidListView = (ListView) findViewById(R.id.custom_listview_transaksi_sekarang);
         androidListView.setAdapter(androidListAdapter);
 
-
-
-        AdapterLayanan androidListLayanan = new AdapterLayanan(this, image_layanan, text_pelayanan, text_jamkerja, id_layanan);
-        ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
-        androidListViewLayanan.setAdapter(androidListLayanan);
-
-        AdapterKamar androidListKamar = new AdapterKamar(this, image_kamar, text_kamar, harga, fasilitas, id_kamar);
-        ListView androidListViewKamar = (ListView) findViewById(R.id.custom_listview_kamar);
-        androidListViewKamar.setAdapter(androidListKamar);
 
         TextView logout = (TextView) findViewById(R.id.keluar);
         logout.setOnClickListener(new View.OnClickListener() {
@@ -168,7 +161,7 @@ public class Home extends AppCompatActivity {
                         int jumlahdokter = response.body().getData().getResult().size();
                         // cek service ada atau tidak
                         for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if(response.body().getData().getResult().get(i).getService().size() == 0) {
+                            if (response.body().getData().getResult().get(i).getService().size() == 0) {
                                 jumlahdokter--;
                             }
                         }
@@ -179,7 +172,7 @@ public class Home extends AppCompatActivity {
                         Integer image_dokter[] = new Integer[jumlahdokter];
                         int index = 0;
                         for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if(response.body().getData().getResult().get(i).getService().size() != 0) {
+                            if (response.body().getData().getResult().get(i).getService().size() != 0) {
                                 System.out.println("id ke-" + index + " = " + response.body().getData().getResult().get(index).getId());
                                 text_dokter[index] = response.body().getData().getResult().get(index).getUsername();
                                 id_dokter[index] = Integer.parseInt(response.body().getData().getResult().get(index).getId());
@@ -201,6 +194,98 @@ public class Home extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Doctor> call, Throwable t) {
+                System.out.println("ERROR:" + t);
+            }
+        });
+
+        Call<Poli> resultPoli = apiService.showPoli(map);
+        resultPoli.enqueue(new Callback<Poli>() {
+
+            @Override
+            public void onResponse(Call<Poli> call, Response<Poli> response) {
+                try {
+                    if (response.body() != null) {
+                        int jumlahpoli = response.body().getData().getResult().size();
+                        // cek service ada atau tidak
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            if (response.body().getData().getResult().get(i).getDoctors().size() == 0) {
+                                jumlahpoli--;
+                            }
+                        }
+
+                        String text_poli[] = new String[jumlahpoli];
+                        String text_jampraktek[] = new String[jumlahpoli];
+                        int id_poli[] = new int[jumlahpoli];
+                        Integer image_poli[] = new Integer[jumlahpoli];
+                        int index = 0;
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            if (response.body().getData().getResult().get(i).getDoctors().size() != 0) {
+                                System.out.println("id ke-" + index + " = " + response.body().getData().getResult().get(index).getId());
+                                text_poli[index] = response.body().getData().getResult().get(index).getName();
+                                id_poli[index] = Integer.parseInt(response.body().getData().getResult().get(index).getId());
+                                text_jampraktek[index] = response.body().getData().getResult().get(index).getStart() + " - " +
+                                        response.body().getData().getResult().get(index).getEnd();
+                                image_poli[index] = R.drawable.klinikgigi;
+                                index++;
+                            }
+                        }
+
+                        AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, image_poli, text_poli, text_jampraktek, id_poli);
+                        ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
+                        androidListViewLayanan.setAdapter(androidListLayanan);
+                    }
+                } catch (Exception e) {
+                    System.out.println("ERROR:" + e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Poli> call, Throwable t) {
+                System.out.println("ERROR:" + t);
+            }
+        });
+
+        Call<Room> resultRoom = apiService.showRoom(map);
+        resultRoom.enqueue(new Callback<Room>() {
+
+            @Override
+            public void onResponse(Call<Room> call, Response<Room> response) {
+                try {
+                    if (response.body() != null) {
+                        int jumlahkamar = 0;
+                        // cek service ada atau tidak
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            jumlahkamar += response.body().getData().getResult().get(i).getClasses().size();
+                        }
+
+                        String text_kamar[] = new String[jumlahkamar];
+                        String fasilitas[] = new String[jumlahkamar];
+                        String harga[] = new String[jumlahkamar];
+                        int id_kamar[] = new int[jumlahkamar];
+                        Integer image_kamar[] = new Integer[jumlahkamar];
+                        int index = 0;
+                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
+                            for (int y = 0; y < response.body().getData().getResult().get(i).getClasses().size(); y++) {
+                                text_kamar[index] = response.body().getData().getResult().get(i).getName()+" - ";
+                                text_kamar[index] = response.body().getData().getResult().get(i).getClasses().get(y).getName();
+                                harga[index] = response.body().getData().getResult().get(i).getClasses().get(y).getCost();
+                                fasilitas[index] = response.body().getData().getResult().get(i).getClasses().get(y).getFeature();
+                                image_kamar[index] = R.drawable.kelas22;
+                            }
+
+                        }
+
+                        AdapterKamar androidListKamar = new AdapterKamar(Home.this, image_kamar, text_kamar, harga, fasilitas, id_kamar);
+                        ListView androidListViewKamar = (ListView) findViewById(R.id.custom_listview_kamar);
+                        androidListViewKamar.setAdapter(androidListKamar);
+                    }
+                } catch (Exception e) {
+                    System.out.println("ERROR:" + e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Room> call, Throwable t) {
                 System.out.println("ERROR:" + t);
             }
         });

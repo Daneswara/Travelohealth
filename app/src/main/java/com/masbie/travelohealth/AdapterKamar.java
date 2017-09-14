@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.masbie.travelohealth.ObjectLogin.Login;
 import com.masbie.travelohealth.ObjectRoom.Room;
 import com.masbie.travelohealth.api.ApiTravelohealth;
 

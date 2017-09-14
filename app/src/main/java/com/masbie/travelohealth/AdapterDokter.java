@@ -2,7 +2,6 @@ package com.masbie.travelohealth;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,21 +10,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.masbie.travelohealth.ObjectDoctor.Doctor;
-import com.masbie.travelohealth.ObjectRoom.Room;
-import com.masbie.travelohealth.api.ApiTravelohealth;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.

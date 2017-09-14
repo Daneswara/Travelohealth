@@ -33,7 +33,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.masbie.travelohealth.ObjectRoom.Room;
 import com.masbie.travelohealth.api.ApiTravelohealth;
 import com.masbie.travelohealth.ObjectLogin.Login;
 
