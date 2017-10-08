@@ -21,7 +21,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
  * Created by Daneswara Jauhari on 06/08/2017.
  */
 
-public class AdapterLayanan extends ArrayAdapter implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener {
+public class AdapterLayanan extends ArrayAdapter {
     String[] androidListViewStrings;
     String[] jamkerja;
     Integer[] imagesId;
@@ -61,55 +61,36 @@ public class AdapterLayanan extends ArrayAdapter implements com.wdullaer.materia
         pesan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pilihan = idlayanan[i];
-                layanan = androidListViewStrings[i];
-                Calendar now = Calendar.getInstance();
-                com.wdullaer.materialdatetimepicker.date.DatePickerDialog dpd = com.wdullaer.materialdatetimepicker.date.DatePickerDialog.newInstance(
-                        AdapterLayanan.this,
-                        now.get(Calendar.YEAR),
-                        now.get(Calendar.MONTH),
-                        now.get(Calendar.DAY_OF_MONTH)
-                );
-                dpd.setAccentColor(context.getResources().getColor(R.color.colorPrimary));
-                dpd.setMinDate(now);
-                dpd.setOkText("Pilih");
-                dpd.setCancelText("Batal");
-                dpd.show(((Activity) context).getFragmentManager(), "Datepickerdialog");
+                new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("Apa anda yakin?")
+                        .setContentText("Anda akan memesan layanan " + androidListViewStrings[i] + "!")
+                        .setConfirmText("Ya, saya yakin!")
+                        .setCancelText("Batal")
+                        .showCancelButton(true)
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sDialog) {
+                                sDialog.cancel();
+                            }
+                        })
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sDialog) {
+                                fl.setVisibility(View.VISIBLE);
+                                f2.setVisibility(View.GONE);
+                                sDialog
+                                        .setTitleText("Berhasil!")
+                                        .setContentText("Anda telah masuk dalam antrian!")
+                                        .setConfirmText("OK")
+                                        .showCancelButton(false)
+                                        .setConfirmClickListener(null)
+                                        .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                            }
+                        })
+                        .show();
             }
         });
 
         return viewRow;
-    }
-
-    @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", (monthOfYear + 1)) + "-" + year;
-        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
-                .setTitleText("Apa anda yakin?")
-                .setContentText("Anda akan memesan layanan " + layanan + " pada tanggal " + date + "!")
-                .setConfirmText("Ya, saya yakin!")
-                .setCancelText("Batal")
-                .showCancelButton(true)
-                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                    @Override
-                    public void onClick(SweetAlertDialog sDialog) {
-                        sDialog.cancel();
-                    }
-                })
-                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                    @Override
-                    public void onClick(SweetAlertDialog sDialog) {
-                        fl.setVisibility(View.VISIBLE);
-                        f2.setVisibility(View.GONE);
-                        sDialog
-                                .setTitleText("Berhasil!")
-                                .setContentText("Anda telah masuk dalam antrian!")
-                                .setConfirmText("OK")
-                                .showCancelButton(false)
-                                .setConfirmClickListener(null)
-                                .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                    }
-                })
-                .show();
     }
 }

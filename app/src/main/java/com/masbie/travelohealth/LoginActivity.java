@@ -111,17 +111,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        initializeRetrofit();
+//        initializeRetrofit();
 
 
     }
 
-    private void initializeRetrofit(){
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-    }
+//    private void initializeRetrofit(){
+//        retrofit = new Retrofit.Builder()
+//                .baseUrl(BASE_API_URL)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//    }
     SweetAlertDialog pDialog;
     private void postMessage(String identity, String password){
         pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
@@ -129,47 +129,53 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         pDialog.setTitleText("Loading");
         pDialog.setCancelable(false);
         pDialog.show();
-        HashMap<String, String> params = new HashMap<>();
-        params.put("identity", identity);
-        params.put("password", password);
 
-        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
-        Call<Login> result = apiService.postLogin(params);
-        result.enqueue(new Callback<Login>() {
-            @Override
-            public void onResponse(Call<Login> call, Response<Login> response) {
-                try {
-                    if(response.body()!=null) {
-//                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
-                        if (response.body().getData().getStatus()==1) {
-                            pDialog.dismiss();
-                            SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0); // 0 - for private mode
-                            SharedPreferences.Editor editor = pref.edit();
-                            editor.putString("token", response.body().getData().getToken().getToken());
-                            editor.putString("refresh", response.body().getData().getToken().getRefresh());
-                            editor.commit();
-                            Intent intent = new Intent(LoginActivity.this, Home.class);
-                            startActivity(intent);
-                            finish();
-                        } else {
-                            mEmailView.requestFocus();
-                            pDialog.dismiss();
-                            new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
-                                    .setTitleText("Login Gagal...")
-                                    .setContentText(response.body().getData().getMessage().getNotify().get(0).getM())
-                                    .show();
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
+        Intent intent = new Intent(LoginActivity.this, Home.class);
+        startActivity(intent);
+        finish();
 
-            @Override
-            public void onFailure(Call<Login> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
+//        HashMap<String, String> params = new HashMap<>();
+//        params.put("identity", identity);
+//        params.put("password", password);
+//
+//        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
+//        Call<Login> result = apiService.postLogin(params);
+//        result.enqueue(new Callback<Login>() {
+//            @Override
+//            public void onResponse(Call<Login> call, Response<Login> response) {
+//                try {
+//                    if(response.body()!=null) {
+////                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getNotify().get(0).getM(), Toast.LENGTH_LONG).show();
+//
+//                        if (response.body().getData().getStatus()==1) {
+//                            pDialog.dismiss();
+//                            SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0); // 0 - for private mode
+//                            SharedPreferences.Editor editor = pref.edit();
+//                            editor.putString("token", response.body().getData().getToken().getToken());
+//                            editor.putString("refresh", response.body().getData().getToken().getRefresh());
+//                            editor.commit();
+//                            Intent intent = new Intent(LoginActivity.this, Home.class);
+//                            startActivity(intent);
+//                            finish();
+//                        } else {
+//                            mEmailView.requestFocus();
+//                            pDialog.dismiss();
+//                            new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+//                                    .setTitleText("Login Gagal...")
+//                                    .setContentText(response.body().getData().getMessage().getNotify().get(0).getM())
+//                                    .show();
+//                        }
+//                    }
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Login> call, Throwable t) {
+//                t.printStackTrace();
+//            }
+//        });
 
 
     }

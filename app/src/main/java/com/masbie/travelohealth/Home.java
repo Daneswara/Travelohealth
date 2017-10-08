@@ -95,6 +95,11 @@ public class Home extends AppCompatActivity {
     int id_layanan[] = {1, 2};
     Integer image_layanan[] = {R.drawable.klinikpenyakitdalam, R.drawable.klinikgigi};
 
+    String text_dokter[] = {"Dr. S", "Dr. A"};
+    String text_jampraktek[] = {"07.00-12.00", "12.00-16.00"};
+    int id_dokter[] = {1, 2};
+    Integer image_dokter[] = {R.drawable.dokterl, R.drawable.dokterp};
+
 
     String text_kamar[] = {"Kelas III", "Kelas II", "Kelas I", "Kelas VIP", "Kelas VVIP"};
     String harga[] = {"Rp. 110.000", "Rp. 440.000", "Rp. 550.000", "Rp. 880.000", "Rp. 1.870.000"};
@@ -106,13 +111,13 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0);
-        String token = pref.getString("token", null);
-        if (token == null) {
-            Intent intent = new Intent(Home.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
+//        SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0);
+//        String token = pref.getString("token", null);
+//        if (token == null) {
+//            Intent intent = new Intent(Home.this, LoginActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
         fl = (LinearLayout) findViewById(R.id.transaksi);
         f2 = (LinearLayout) findViewById(R.id.layanan);
         f3 = (LinearLayout) findViewById(R.id.dokter);
@@ -133,6 +138,17 @@ public class Home extends AppCompatActivity {
         ListView androidListView = (ListView) findViewById(R.id.custom_listview_transaksi_sekarang);
         androidListView.setAdapter(androidListAdapter);
 
+        AdapterDokter androidListDokter = new AdapterDokter(Home.this, image_dokter, text_dokter, text_jampraktek, id_dokter);
+        ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
+        androidListViewDokter.setAdapter(androidListDokter);
+
+        AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, image_layanan, text_pelayanan, text_jamkerja, id_layanan);
+        ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
+        androidListViewLayanan.setAdapter(androidListLayanan);
+
+        AdapterKamar androidListKamar = new AdapterKamar(Home.this, image_kamar, text_kamar, harga, fasilitas, id_kamar);
+        ListView androidListViewKamar = (ListView) findViewById(R.id.custom_listview_kamar);
+        androidListViewKamar.setAdapter(androidListKamar);
 
         TextView logout = (TextView) findViewById(R.id.keluar);
         logout.setOnClickListener(new View.OnClickListener() {
@@ -144,161 +160,7 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        initializeRetrofit();
 
-
-        Map<String, String> map = new HashMap<>();
-        map.put("x-access-token", token);
-
-        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
-        Call<Doctor> result = apiService.showDoctor(map);
-        result.enqueue(new Callback<Doctor>() {
-
-            @Override
-            public void onResponse(Call<Doctor> call, Response<Doctor> response) {
-                try {
-                    if (response.body() != null) {
-                        int jumlahdokter = response.body().getData().getResult().size();
-                        // cek service ada atau tidak
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if (response.body().getData().getResult().get(i).getService().size() == 0) {
-                                jumlahdokter--;
-                            }
-                        }
-
-                        String text_dokter[] = new String[jumlahdokter];
-                        String text_jampraktek[] = new String[jumlahdokter];
-                        int id_dokter[] = new int[jumlahdokter];
-                        Integer image_dokter[] = new Integer[jumlahdokter];
-                        int index = 0;
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if (response.body().getData().getResult().get(i).getService().size() != 0) {
-                                System.out.println("id ke-" + index + " = " + response.body().getData().getResult().get(index).getId());
-                                text_dokter[index] = response.body().getData().getResult().get(index).getUsername();
-                                id_dokter[index] = Integer.parseInt(response.body().getData().getResult().get(index).getId());
-                                text_jampraktek[index] = response.body().getData().getResult().get(index).getService().get(0).getStart() + " - " +
-                                        response.body().getData().getResult().get(index).getService().get(0).getEnd();
-                                image_dokter[index] = R.drawable.dokterl;
-                                index++;
-                            }
-                        }
-
-                        AdapterDokter androidListDokter = new AdapterDokter(Home.this, image_dokter, text_dokter, text_jampraktek, id_dokter);
-                        ListView androidListViewDokter = (ListView) findViewById(R.id.custom_listview_dokter);
-                        androidListViewDokter.setAdapter(androidListDokter);
-                    }
-                } catch (Exception e) {
-                    System.out.println("ERROR:" + e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Doctor> call, Throwable t) {
-                System.out.println("ERROR:" + t);
-            }
-        });
-
-        Call<Poli> resultPoli = apiService.showPoli(map);
-        resultPoli.enqueue(new Callback<Poli>() {
-
-            @Override
-            public void onResponse(Call<Poli> call, Response<Poli> response) {
-                try {
-                    if (response.body() != null) {
-                        int jumlahpoli = response.body().getData().getResult().size();
-                        // cek service ada atau tidak
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if (response.body().getData().getResult().get(i).getDoctors().size() == 0) {
-                                jumlahpoli--;
-                            }
-                        }
-
-                        String text_poli[] = new String[jumlahpoli];
-                        String text_jampraktek[] = new String[jumlahpoli];
-                        int id_poli[] = new int[jumlahpoli];
-                        Integer image_poli[] = new Integer[jumlahpoli];
-                        int index = 0;
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            if (response.body().getData().getResult().get(i).getDoctors().size() != 0) {
-                                System.out.println("id ke-" + index + " = " + response.body().getData().getResult().get(index).getId());
-                                text_poli[index] = response.body().getData().getResult().get(index).getName();
-                                id_poli[index] = Integer.parseInt(response.body().getData().getResult().get(index).getId());
-                                text_jampraktek[index] = response.body().getData().getResult().get(index).getStart() + " - " +
-                                        response.body().getData().getResult().get(index).getEnd();
-                                image_poli[index] = R.drawable.klinikgigi;
-                                index++;
-                            }
-                        }
-
-                        AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, image_poli, text_poli, text_jampraktek, id_poli);
-                        ListView androidListViewLayanan = (ListView) findViewById(R.id.custom_listview_layanan);
-                        androidListViewLayanan.setAdapter(androidListLayanan);
-                    }
-                } catch (Exception e) {
-                    System.out.println("ERROR:" + e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Poli> call, Throwable t) {
-                System.out.println("ERROR:" + t);
-            }
-        });
-
-        Call<Room> resultRoom = apiService.showRoom(map);
-        resultRoom.enqueue(new Callback<Room>() {
-
-            @Override
-            public void onResponse(Call<Room> call, Response<Room> response) {
-                try {
-                    if (response.body() != null) {
-                        int jumlahkamar = 0;
-                        // cek service ada atau tidak
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            jumlahkamar += response.body().getData().getResult().get(i).getClasses().size();
-                        }
-
-                        String text_kamar[] = new String[jumlahkamar];
-                        String fasilitas[] = new String[jumlahkamar];
-                        String harga[] = new String[jumlahkamar];
-                        int id_kamar[] = new int[jumlahkamar];
-                        Integer image_kamar[] = new Integer[jumlahkamar];
-                        int index = 0;
-                        for (int i = 0; i < response.body().getData().getResult().size(); i++) {
-                            for (int y = 0; y < response.body().getData().getResult().get(i).getClasses().size(); y++) {
-                                text_kamar[index] = response.body().getData().getResult().get(i).getName()+" - ";
-                                text_kamar[index] = response.body().getData().getResult().get(i).getClasses().get(y).getName();
-                                harga[index] = response.body().getData().getResult().get(i).getClasses().get(y).getCost();
-                                fasilitas[index] = response.body().getData().getResult().get(i).getClasses().get(y).getFeature();
-                                image_kamar[index] = R.drawable.kelas22;
-                            }
-
-                        }
-
-                        AdapterKamar androidListKamar = new AdapterKamar(Home.this, image_kamar, text_kamar, harga, fasilitas, id_kamar);
-                        ListView androidListViewKamar = (ListView) findViewById(R.id.custom_listview_kamar);
-                        androidListViewKamar.setAdapter(androidListKamar);
-                    }
-                } catch (Exception e) {
-                    System.out.println("ERROR:" + e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Room> call, Throwable t) {
-                System.out.println("ERROR:" + t);
-            }
-        });
-    }
-
-    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/";
-    private Retrofit retrofit;
-
-    private void initializeRetrofit() {
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
     }
 
 }
