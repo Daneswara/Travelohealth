@@ -12,6 +12,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.masbie.travelohealth.object.Kamar;
+
+import java.util.List;
+
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -19,18 +27,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class AdapterKamar extends ArrayAdapter {
-    String[] androidListViewStrings, harga, fasilitas;
-    int[] idkamar;
-    Integer[] imagesId;
+    List<Kamar> daftar_kamar;
     Context context;
 
-    public AdapterKamar(Activity context, Integer[] imagesId, String[] textListView, String[] harga, String[] fasilitas, int[] idkamar) {
-        super(context, R.layout.layout_kamar_listview, textListView);
-        this.androidListViewStrings = textListView;
-        this.harga = harga;
-        this.fasilitas = fasilitas;
-        this.idkamar = idkamar;
-        this.imagesId = imagesId;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    public AdapterKamar(Activity context, List<Kamar> daftar_kamar) {
+        super(context, R.layout.layout_kamar_listview, daftar_kamar);
+        this.daftar_kamar = daftar_kamar;
         this.context = context;
     }
     @Override
@@ -39,19 +43,24 @@ public class AdapterKamar extends ArrayAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewRow = layoutInflater.inflate(R.layout.layout_kamar_listview, null,
                 true);
-        TextView mtextView = (TextView) viewRow.findViewById(R.id.kelaskamar);
-        TextView harga = (TextView) viewRow.findViewById(R.id.harga);
-        TextView fasilitas = (TextView) viewRow.findViewById(R.id.fasilitas);
-        TextView pesan = (TextView) viewRow.findViewById(R.id.pesanDokter);
-        harga.setText(this.harga[i]);
-        fasilitas.setText(this.fasilitas[i]);
-        mtextView.setText(androidListViewStrings[i]);
-        ImageView mimageView = (ImageView) viewRow.findViewById(R.id.image_view);
-        mimageView.setImageResource(imagesId[i]);
+        TextView mtextView = viewRow.findViewById(R.id.kelaskamar);
+        TextView harga = viewRow.findViewById(R.id.harga);
+        TextView fasilitas = viewRow.findViewById(R.id.fasilitas);
+        TextView pesan = viewRow.findViewById(R.id.pesanDokter);
+        harga.setText(daftar_kamar.get(i).harga+"");
+        fasilitas.setText(daftar_kamar.get(i).fasilitas);
+        mtextView.setText(daftar_kamar.get(i).kelas);
+
+        StorageReference storageRef = storage.getReference().child("images/"+daftar_kamar.get(i).gambar);
+        ImageView mimageView = viewRow.findViewById(R.id.image_view);
+        Glide.with(context)
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .into(mimageView);
+
         pesan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Kamar ke-"+idkamar[i]);
                 Intent intent = new Intent(context, PesanKamar.class);
                 context.startActivity(intent);
             }

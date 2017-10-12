@@ -94,19 +94,17 @@
                 android:padding="16dp"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/nama_pengguna"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Daneswara Jauhari"
                     android:textStyle="bold"
                     android:textSize="16sp"/>
                 <TextView
+                    android:id="@+id/email_pengguna"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="daneswarajauhari@gmail.com"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+62 857 3059 5101"/>
             </LinearLayout>
             <TextView
                 android:layout_width="match_parent"

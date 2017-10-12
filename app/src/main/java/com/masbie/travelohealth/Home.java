@@ -22,7 +22,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.masbie.travelohealth.object.Dokter;
+import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.object.Poli;
+import com.masbie.travelohealth.object.User;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -100,6 +104,8 @@ public class Home extends AppCompatActivity {
     };
 
     ListView androidListViewLayanan;
+    ListView androidListViewDokter;
+    ListView androidListViewKamar;
 
     String text_no_antrian[] = {"8"};
     String text_antrian_saat_ini[] = {"2"};
@@ -109,18 +115,9 @@ public class Home extends AppCompatActivity {
     Integer image_transaksi[] = {R.drawable.klinikpenyakitdalam};
 
     List<Poli> daftar_poli;
+    List<Dokter> daftar_dokter;
+    List<Kamar> daftar_kamar;
 
-    String text_dokter[] = {"Dr. S", "Dr. A"};
-    String text_jampraktek[] = {"07.00-12.00", "12.00-16.00"};
-    int id_dokter[] = {1, 2};
-    Integer image_dokter[] = {R.drawable.dokterl, R.drawable.dokterp};
-
-
-    String text_kamar[] = {"Kelas III", "Kelas II", "Kelas I", "Kelas VIP", "Kelas VVIP"};
-    String harga[] = {"Rp. 110.000", "Rp. 440.000", "Rp. 550.000", "Rp. 880.000", "Rp. 1.870.000"};
-    String fasilitas[] = {"1 Kamar 5 Tempat tidur \n Kursi", "1 Kamar 2 Tempat tidur \n Kursi", "1 Kamar 1 Tempat tidur \n Kursi", "1 Kamar 1 Tempat tidur \n Lemari \n Kursi \n TV", "1 Kamar 1 Tempat tidur \n Tempat makan \n Lemari \n Kursi \n TV"};
-    int id_kamar[] = {1, 2, 3, 4, 5};
-    Integer image_kamar[] = {R.drawable.kelas31, R.drawable.kelas22, R.drawable.kelas11, R.drawable.vip1, R.drawable.vvip};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,15 +148,11 @@ public class Home extends AppCompatActivity {
             ListView androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
             androidListView.setAdapter(androidListAdapter);
 
-            AdapterDokter androidListDokter = new AdapterDokter(Home.this, image_dokter, text_dokter, text_jampraktek, id_dokter);
-            ListView androidListViewDokter = findViewById(R.id.custom_listview_dokter);
-            androidListViewDokter.setAdapter(androidListDokter);
+            androidListViewDokter = findViewById(R.id.custom_listview_dokter);
 
             androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
 
-            AdapterKamar androidListKamar = new AdapterKamar(Home.this, image_kamar, text_kamar, harga, fasilitas, id_kamar);
-            ListView androidListViewKamar = findViewById(R.id.custom_listview_kamar);
-            androidListViewKamar.setAdapter(androidListKamar);
+            androidListViewKamar = findViewById(R.id.custom_listview_kamar);
 
             TextView logout = findViewById(R.id.keluar);
             logout.setOnClickListener(new View.OnClickListener() {
@@ -176,10 +169,11 @@ public class Home extends AppCompatActivity {
 
             // ambil data poli
             daftar_poli = new LinkedList<>();
+            daftar_kamar = new LinkedList<>();
+            daftar_dokter = new LinkedList<>();
             mDatabase.child("poli").addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    System.out.println("masuk");
                     daftar_poli.add(dataSnapshot.getValue(Poli.class));
                     AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
                     androidListViewLayanan.setAdapter(androidListLayanan);
@@ -198,6 +192,80 @@ public class Home extends AppCompatActivity {
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.child("dokter").addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    daftar_dokter.add(dataSnapshot.getValue(Dokter.class));
+                    AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                    androidListViewDokter.setAdapter(androidListDokter);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            mDatabase.child("kamar").addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    daftar_kamar.add(dataSnapshot.getValue(Kamar.class));
+                    AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
+                    androidListViewKamar.setAdapter(androidListKamar);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+            mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    TextView nama = findViewById(R.id.nama_pengguna);
+                    TextView email = findViewById(R.id.email_pengguna);
+                    User user = dataSnapshot.getValue(User.class);
+                    nama.setText(user.name);
+                    email.setText(user.email);
                 }
 
                 @Override

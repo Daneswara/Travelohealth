@@ -10,9 +10,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.masbie.travelohealth.object.Dokter;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.Calendar;
+import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -21,23 +27,20 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
  */
 
 public class AdapterDokter extends ArrayAdapter {
-    String[] androidListViewStrings, jampraktek;
-    int[] iddokter;
-    Integer[] imagesId;
+    List<Dokter> daftar_dokter;
     Context context;
     private LinearLayout fl, f2;
 
-    public AdapterDokter(Activity context, Integer[] imagesId, String[] textListView, String[] jampraktek, int[] iddokter) {
-        super(context, R.layout.layout_dokter_listview, textListView);
-        this.androidListViewStrings = textListView;
-        this.jampraktek = jampraktek;
-        this.iddokter = iddokter;
-        this.imagesId = imagesId;
+    public AdapterDokter(Activity context, List<Dokter> daftar_dokter) {
+        super(context, R.layout.layout_dokter_listview, daftar_dokter);
         this.context = context;
+        this.daftar_dokter = daftar_dokter;
         fl = (LinearLayout) context.findViewById(R.id.transaksi);
         f2 = (LinearLayout) context.findViewById(R.id.dokter);
 
     }
+
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     public boolean cek = true;
     private int pilihan = 0;
@@ -52,17 +55,22 @@ public class AdapterDokter extends ArrayAdapter {
         TextView mtextView = (TextView) viewRow.findViewById(R.id.namadokter);
         TextView jam = (TextView) viewRow.findViewById(R.id.jampraktek);
         TextView pesan = (TextView) viewRow.findViewById(R.id.pesanDokter);
-        mtextView.setText(androidListViewStrings[i]);
-        jam.setText("Praktek \n " + jampraktek[i]);
-        ImageView mimageView = (ImageView) viewRow.findViewById(R.id.image_view);
-        mimageView.setImageResource(imagesId[i]);
+        mtextView.setText(daftar_dokter.get(i).nama);
+        jam.setText("Praktek \n " + daftar_dokter.get(i).jampraktek);
+
+        StorageReference storageRef = storage.getReference().child("images/"+daftar_dokter.get(i).gambar);
+        ImageView mimageView = viewRow.findViewById(R.id.image_view);
+        Glide.with(context)
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .into(mimageView);
 
         pesan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                         .setTitleText("Apa anda yakin?")
-                        .setContentText("Anda akan memesan " + androidListViewStrings[i] + "!")
+                        .setContentText("Anda akan memesan " + daftar_dokter.get(i).nama + "!")
                         .setConfirmText("Ya, saya yakin!")
                         .setCancelText("Batal")
                         .showCancelButton(true)
