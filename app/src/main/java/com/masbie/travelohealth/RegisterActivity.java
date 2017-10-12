@@ -43,14 +43,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.masbie.travelohealth.object.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +61,15 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     private static final String TAG = "Login Service";
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
     SweetAlertDialog prosses_login;
 
     /**
@@ -82,65 +83,49 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
-
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mPasswordView, mCekPasswordView, mNamaView;
     private View mProgressView;
     private View mLoginFormView;
-    private View mSignUpFormView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Intent keluar = new Intent(LoginActivity.this, Home.class);
-            startActivity(keluar);
-            finish();
-        } else {
-            setContentView(R.layout.activity_login);
-            // Set up the login form.
-            mEmailView = findViewById(R.id.email);
-            populateAutoComplete();
+        setupActionBar();
+        // Set up the login form.
+        mEmailView = findViewById(R.id.email);
+        populateAutoComplete();
 
-            mPasswordView = findViewById(R.id.password);
-            mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                        attemptLogin();
-                        return true;
-                    }
-                    return false;
-                }
-            });
 
-            Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
-            mEmailSignInButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
+        mPasswordView = findViewById(R.id.password);
+        mNamaView = findViewById(R.id.name);
+        mCekPasswordView = findViewById(R.id.cek_password);
+        mCekPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
                     attemptLogin();
+                    return true;
                 }
-            });
+                return false;
+            }
+        });
 
-            mLoginFormView = findViewById(R.id.login_form);
-            mSignUpFormView = findViewById(R.id.signup);
-            mProgressView = findViewById(R.id.login_progress);
-            mSignUpFormView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent regis = new Intent(LoginActivity.this, RegisterActivity.class);
-                    startActivity(regis);
-                }
-            });
-        }
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
+        });
+
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
     }
 
     private void populateAutoComplete() {
@@ -186,6 +171,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    /**
+     * Set up the {@link android.app.ActionBar}, if the API is available.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void setupActionBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            // Show the Up button in the action bar.
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -200,13 +195,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mCekPasswordView.setError(null);
+        mNamaView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String cek_password = mCekPasswordView.getText().toString();
+        String name = mNamaView.getText().toString();
+
 
         boolean cancel = false;
         View focusView = null;
+
+        if (TextUtils.isEmpty(name)) {
+            mNamaView.setError(getString(R.string.error_field_required));
+            focusView = mNamaView;
+            cancel = true;
+        }
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
@@ -230,6 +236,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+        if (TextUtils.isEmpty(cek_password)) {
+            mCekPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mCekPasswordView;
+            cancel = true;
+        }
+
+        if (!password.equals(cek_password)){
+            mCekPasswordView.setError(getString(R.string.error_invalid_cek_password));
+            focusView = mCekPasswordView;
+            cancel = true;
+        }
+
+
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -237,7 +257,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            //showProgress(true);
+//            showProgress(true);
             prosses_login = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
             prosses_login.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
             prosses_login.setTitleText("Loading");
@@ -245,45 +265,47 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             prosses_login.show();
 //            mAuthTask = new UserLoginTask(email, password);
 //            mAuthTask.execute((Void) null);
-            mAuth.signInWithEmailAndPassword(email, password)
+            mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-
                             if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "signInWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
                                 prosses_login.dismissWithAnimation();
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                User newuser = new User(mNamaView.getText().toString(), mEmailView.getText().toString());
+                                mDatabase.child("users").child(user.getUid()).setValue(newuser);
                                 FirebaseMessaging.getInstance().subscribeToTopic("news");
-                                Intent masuk = new Intent(LoginActivity.this, Home.class);
+                                Intent masuk = new Intent(RegisterActivity.this, Home.class);
                                 startActivity(masuk);
                                 finish();
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             }
+//                            showProgress(false);
 
                             // ...
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    //showProgress(false);
+//                    showProgress(false);
                     prosses_login.dismissWithAnimation();
-                    if (e instanceof FirebaseAuthInvalidUserException) {
-                        Toast.makeText(LoginActivity.this, "This User Not Found , Create A New Account", Toast.LENGTH_SHORT).show();
+                    if(e instanceof FirebaseAuthUserCollisionException){
+                        Toast.makeText(RegisterActivity.this, "This User Already Registered , Please Login", Toast.LENGTH_SHORT).show();
                         mEmailView.setError(getString(R.string.error_incorrect_email));
                         mEmailView.requestFocus();
                     }
-                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(LoginActivity.this, "The Password Is Invalid, Please Try Valid Password", Toast.LENGTH_SHORT).show();
+                    if(e instanceof FirebaseAuthWeakPasswordException){
+                        Toast.makeText(RegisterActivity.this, "Password is Weak, Minimum Password Is 6 Digits", Toast.LENGTH_SHORT).show();
                         mPasswordView.setError(getString(R.string.error_incorrect_password));
                         mPasswordView.requestFocus();
                     }
-                    if (e instanceof FirebaseNetworkException) {
+                    if(e instanceof FirebaseNetworkException){
                         mEmailView.requestFocus();
-                        Toast.makeText(LoginActivity.this, "Please Check Your Connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, "Please Check Your Connection", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -312,13 +334,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mSignUpFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                    mSignUpFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -335,7 +355,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mSignUpFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -376,7 +395,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
+                new ArrayAdapter<>(RegisterActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);

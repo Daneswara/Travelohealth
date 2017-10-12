@@ -38,8 +38,6 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pesan_kamar);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         setTitle("Pesan Kamar");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

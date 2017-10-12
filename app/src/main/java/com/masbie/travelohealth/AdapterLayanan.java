@@ -11,9 +11,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.masbie.travelohealth.object.Poli;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.Calendar;
+import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -22,22 +28,17 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
  */
 
 public class AdapterLayanan extends ArrayAdapter {
-    String[] androidListViewStrings;
-    String[] jamkerja;
-    Integer[] imagesId;
     Context context;
-    int[] idlayanan;
     private LinearLayout fl, f2;
+    List<Poli> daftar_poli;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
-    public AdapterLayanan(Activity context, Integer[] imagesId, String[] textListView, String[] jamkerja, int[] idlayanan) {
-        super(context, R.layout.layout_layanan_listview, textListView);
-        this.androidListViewStrings = textListView;
-        this.jamkerja = jamkerja;
-        this.imagesId = imagesId;
-        this.idlayanan = idlayanan;
+    public AdapterLayanan(Activity context, List<Poli> daftar_poli) {
+        super(context, R.layout.layout_layanan_listview, daftar_poli);
+        this.daftar_poli = daftar_poli;
         this.context = context;
-        fl = (LinearLayout) context.findViewById(R.id.transaksi);
-        f2 = (LinearLayout) context.findViewById(R.id.layanan);
+        fl = context.findViewById(R.id.transaksi);
+        f2 = context.findViewById(R.id.layanan);
     }
 
     public boolean cek = true;
@@ -50,20 +51,26 @@ public class AdapterLayanan extends ArrayAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewRow = layoutInflater.inflate(R.layout.layout_layanan_listview, null,
                 true);
-        TextView mtextView = (TextView) viewRow.findViewById(R.id.namalayanan);
-        TextView jam = (TextView) viewRow.findViewById(R.id.jamkerja);
-        TextView pesan = (TextView) viewRow.findViewById(R.id.pesanDokter);
-        mtextView.setText(androidListViewStrings[i]);
-        jam.setText("Buka \n " + jamkerja[i]);
-        ImageView mimageView = (ImageView) viewRow.findViewById(R.id.image_view);
-        mimageView.setImageResource(imagesId[i]);
+        TextView mtextView = viewRow.findViewById(R.id.namalayanan);
+        TextView jam =  viewRow.findViewById(R.id.jamkerja);
+        TextView pesan = viewRow.findViewById(R.id.pesanDokter);
+        mtextView.setText(daftar_poli.get(i).pelayanan);
+        jam.setText("Buka \n " + daftar_poli.get(i).jamkerja);
+
+
+        StorageReference storageRef = storage.getReference().child("images/"+daftar_poli.get(i).gambar);
+        ImageView mimageView = viewRow.findViewById(R.id.image_view);
+        Glide.with(context)
+                .using(new FirebaseImageLoader())
+                .load(storageRef)
+                .into(mimageView);
 
         pesan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                         .setTitleText("Apa anda yakin?")
-                        .setContentText("Anda akan memesan layanan " + androidListViewStrings[i] + "!")
+                        .setContentText("Anda akan memesan layanan " +daftar_poli.get(i).pelayanan + "!")
                         .setConfirmText("Ya, saya yakin!")
                         .setCancelText("Batal")
                         .showCancelButton(true)
