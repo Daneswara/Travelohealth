@@ -112,7 +112,8 @@ public class AdapterLayanan extends ArrayAdapter {
                                             calendar.add(Calendar.HOUR, 2);
                                             if(!dataSnapshot.hasChild("antrian")){
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").setValue(1);
-                                                Pesan pesanan = new Pesan(daftar_poli.get(i).id, 1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid());
+                                                mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("proses").setValue(1);
+                                                Pesan pesanan = new Pesan(daftar_poli.get(i).id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(),daftar_poli.get(i).gambar);
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                 sDialog
                                                         .setTitleText("Berhasil!")
@@ -129,7 +130,7 @@ public class AdapterLayanan extends ArrayAdapter {
                                                         String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                                         calendar.add(Calendar.HOUR, 2);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").setValue((long)dataSnapshot.getValue()+1);
-                                                        Pesan pesanan = new Pesan(daftar_poli.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid());
+                                                        Pesan pesanan = new Pesan(daftar_poli.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_poli.get(i).gambar);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                         fl.setVisibility(View.VISIBLE);
                                                         f2.setVisibility(View.GONE);

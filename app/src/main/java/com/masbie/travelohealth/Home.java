@@ -3,10 +3,16 @@ package com.masbie.travelohealth;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,22 +29,36 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.DirectionsApi;
+import com.google.maps.GeoApiContext;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.LatLng;
+import com.google.maps.model.TravelMode;
+import com.masbie.travelohealth.object.Antrian;
 import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.object.Poli;
 import com.masbie.travelohealth.object.User;
 
+import org.joda.time.DateTime;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Home extends AppCompatActivity {
-//    static {
+    //    static {
 //        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 //    }
     private LinearLayout fl, f2, f3, f4, f5;
     SharedPreferences sharedpreferences;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -106,17 +126,16 @@ public class Home extends AppCompatActivity {
     ListView androidListViewLayanan;
     ListView androidListViewDokter;
     ListView androidListViewKamar;
+    ListView androidListView;
 
-    String text_no_antrian[] = {"8"};
-    String text_antrian_saat_ini[] = {"2"};
-    String text_estimasi_pelayanan[] = {"1 jam 2 menit"};
-    String text_estimasi_perjalanan[] = {"16 menit"};
-    int id_transaksi[] = {1};
-    Integer image_transaksi[] = {R.drawable.klinikpenyakitdalam};
 
     List<Poli> daftar_poli;
     List<Dokter> daftar_dokter;
     List<Kamar> daftar_kamar;
+    List<Antrian> daftar_antrian;
+
+    DirectionsResult result;
+    double longitude, latitude;
 
 
     @Override
@@ -144,9 +163,19 @@ public class Home extends AppCompatActivity {
             navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
             cek_menu();
 
-            final AdapterTransaksiSekarang androidListAdapter = new AdapterTransaksiSekarang(this, image_transaksi, text_no_antrian, text_antrian_saat_ini, text_estimasi_pelayanan, text_estimasi_perjalanan, id_transaksi);
-            ListView androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
-            androidListView.setAdapter(androidListAdapter);
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            }
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location == null) {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+            } else {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+            }
+
+            androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
+
 
             androidListViewDokter = findViewById(R.id.custom_listview_dokter);
 
@@ -171,6 +200,8 @@ public class Home extends AppCompatActivity {
             daftar_poli = new LinkedList<>();
             daftar_kamar = new LinkedList<>();
             daftar_dokter = new LinkedList<>();
+            daftar_antrian = new LinkedList<>();
+            new getLokasi().execute();
             mDatabase.child("poli").addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -277,7 +308,9 @@ public class Home extends AppCompatActivity {
 
 
     }
+
     BottomNavigationView navigation;
+
     public void cek_menu() {
         int menunya = sharedpreferences.getInt("menu", 0);
         SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -326,6 +359,174 @@ public class Home extends AppCompatActivity {
             f5.setVisibility(View.VISIBLE);
             navigation.setSelectedItemId(R.id.navigation_akun);
         }
+    }
+
+    private DirectionsResult getDirectionsDetails() {
+        DateTime now = new DateTime();
+        try {
+            return DirectionsApi.newRequest(getGeoContext())
+                    .mode(TravelMode.DRIVING)
+                    .origin(new LatLng(latitude, longitude))
+                    .destination("RSAB Muhammadiyah Malang")
+                    .departureTime(now)
+                    .await();
+        } catch (ApiException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private GeoApiContext getGeoContext() {
+        GeoApiContext geoApiContext = new GeoApiContext();
+        return geoApiContext.setQueryRateLimit(3).setApiKey(getString(R.string.google_maps_dir_key)).setConnectTimeout(1, TimeUnit.SECONDS).setReadTimeout(1, TimeUnit.SECONDS).setWriteTimeout(1, TimeUnit.SECONDS);
+    }
+
+    private final LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
+
+    class getLokasi extends AsyncTask<String, String, DirectionsResult> {
+        /**
+         * Before starting background thread Show Progress Dialog
+         */
+        public getLokasi() {
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected DirectionsResult doInBackground(String... args) {
+            // TODO Auto-generated method stub
+            // Check for success tag
+            DateTime now = new DateTime();
+            try {
+                return DirectionsApi.newRequest(getGeoContext())
+                        .mode(TravelMode.DRIVING)
+                        .origin(new LatLng(latitude, longitude))
+                        .destination("RSAB Muhammadiyah Malang")
+                        .departureTime(now)
+                        .await();
+            } catch (ApiException e) {
+                e.printStackTrace();
+                return null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(final DirectionsResult result) {
+            super.onPostExecute(result);
+            Calendar calendar = Calendar.getInstance();
+            final String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
+            if (result != null) {
+                mDatabase.child("antrian").child(tanggal).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        final String key = dataSnapshot.getKey();
+                        mDatabase.child("antrian").child(tanggal).child(dataSnapshot.getKey()).addChildEventListener(new ChildEventListener() {
+                            @Override
+                            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                if (!dataSnapshot.getKey().equals("antrian") && !dataSnapshot.getKey().equals("proses")) {
+                                    final Antrian antrian = dataSnapshot.getValue(Antrian.class);
+                                    if (antrian.uid_pasien.equals(mAuth.getCurrentUser().getUid())) {
+                                        mDatabase.child("antrian").child(tanggal).child(key).child("proses").addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                if(dataSnapshot.getValue()!=null) {
+                                                    daftar_antrian.add(antrian);
+                                                    AdapterTransaksiSekarang androidListAdapter = new AdapterTransaksiSekarang(Home.this, daftar_antrian, result, dataSnapshot.getValue(long.class));
+                                                    androidListView.setAdapter(androidListAdapter);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                            }
+
+                            @Override
+                            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                            }
+
+                            @Override
+                            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
+
     }
 
 }

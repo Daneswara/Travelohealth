@@ -118,7 +118,8 @@ public class AdapterDokter extends ArrayAdapter {
                                             calendar.add(Calendar.HOUR, 2);
                                             if(!dataSnapshot.hasChild("antrian")){
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").setValue(1);
-                                                Pesan pesanan = new Pesan(daftar_dokter.get(i).id, 1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid());
+                                                mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("proses").setValue(1);
+                                                Pesan pesanan = new Pesan(daftar_dokter.get(i).id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(), daftar_dokter.get(i).gambar);
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                 sDialog
                                                         .setTitleText("Berhasil!")
@@ -135,7 +136,7 @@ public class AdapterDokter extends ArrayAdapter {
                                                         String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                                         calendar.add(Calendar.HOUR, 2);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").setValue((long)dataSnapshot.getValue()+1);
-                                                        Pesan pesanan = new Pesan(daftar_dokter.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid());
+                                                        Pesan pesanan = new Pesan(daftar_dokter.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_dokter.get(i).gambar);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                         fl.setVisibility(View.VISIBLE);
                                                         f2.setVisibility(View.GONE);
