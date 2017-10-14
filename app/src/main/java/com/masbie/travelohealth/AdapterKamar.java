@@ -18,7 +18,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.masbie.travelohealth.object.Kamar;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -47,7 +49,10 @@ public class AdapterKamar extends ArrayAdapter {
         TextView harga = viewRow.findViewById(R.id.harga);
         TextView fasilitas = viewRow.findViewById(R.id.fasilitas);
         TextView pesan = viewRow.findViewById(R.id.pesanDokter);
-        harga.setText(daftar_kamar.get(i).harga+"");
+        Locale locale = new Locale("id", "ID");
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(locale);
+
+        harga.setText(currencyFormatter.format(daftar_kamar.get(i).harga) + "/hari");
         fasilitas.setText(daftar_kamar.get(i).fasilitas);
         mtextView.setText(daftar_kamar.get(i).kelas);
 

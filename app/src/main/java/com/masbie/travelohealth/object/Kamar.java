@@ -14,6 +14,8 @@ public class Kamar {
     public String fasilitas;
     public String kelas;
     public long harga;
+    public long kapasitas;
+    public long terisi;
 
     public Kamar() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)

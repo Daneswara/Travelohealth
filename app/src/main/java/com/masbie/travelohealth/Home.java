@@ -32,9 +32,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Home extends AppCompatActivity {
-    static {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-    }
+//    static {
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+//    }
     private LinearLayout fl, f2, f3, f4, f5;
     SharedPreferences sharedpreferences;
     private FirebaseAuth mAuth;

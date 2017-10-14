@@ -14,17 +14,19 @@ public class Dokter {
     public String id;
     public String jampraktek;
     public String nama;
+    public String poli;
 
     public Dokter() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Dokter(String id, String nama, String hari, String jampraktek, String gambar) {
+    public Dokter(String id, String nama, String hari, String jampraktek, String gambar, String poli) {
         this.id = id;
         this.nama = nama;
         this.jampraktek = jampraktek;
         this.gambar = gambar;
         this.hari = hari;
+        this.poli = poli;
     }
 
 }
