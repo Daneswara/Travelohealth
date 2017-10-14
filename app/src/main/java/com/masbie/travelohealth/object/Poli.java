@@ -12,6 +12,7 @@ import java.util.Calendar;
 @IgnoreExtraProperties
 public class Poli {
 
+    public String hari;
     public String gambar;
     public String id;
     public String jamkerja;
@@ -21,11 +22,12 @@ public class Poli {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Poli(String id, String pelayanan, String jamkerja, String gambar) {
+    public Poli(String id, String pelayanan, String hari, String jamkerja, String gambar) {
         this.id = id;
         this.pelayanan = pelayanan;
         this.jamkerja = jamkerja;
         this.gambar = gambar;
+        this.hari = hari;
     }
 
 }

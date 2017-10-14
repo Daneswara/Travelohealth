@@ -56,7 +56,7 @@ public class AdapterDokter extends ArrayAdapter {
         TextView jam = (TextView) viewRow.findViewById(R.id.jampraktek);
         TextView pesan = (TextView) viewRow.findViewById(R.id.pesanDokter);
         mtextView.setText(daftar_dokter.get(i).nama);
-        jam.setText("Praktek \n " + daftar_dokter.get(i).jampraktek);
+        jam.setText(daftar_dokter.get(i).hari.toUpperCase()+"\n"+daftar_dokter.get(i).jampraktek);
 
         StorageReference storageRef = storage.getReference().child("images/"+daftar_dokter.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);

@@ -52,13 +52,15 @@ public class AdapterLayanan extends ArrayAdapter {
         View viewRow = layoutInflater.inflate(R.layout.layout_layanan_listview, null,
                 true);
         TextView mtextView = viewRow.findViewById(R.id.namalayanan);
-        TextView jam =  viewRow.findViewById(R.id.jamkerja);
+        TextView jam = viewRow.findViewById(R.id.jamkerja);
         TextView pesan = viewRow.findViewById(R.id.pesanDokter);
+
+
         mtextView.setText(daftar_poli.get(i).pelayanan);
-        jam.setText("Buka \n " + daftar_poli.get(i).jamkerja);
+        jam.setText(daftar_poli.get(i).hari.toUpperCase() + "\n" + daftar_poli.get(i).jamkerja);
 
 
-        StorageReference storageRef = storage.getReference().child("images/"+daftar_poli.get(i).gambar);
+        StorageReference storageRef = storage.getReference().child("images/" + daftar_poli.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);
         Glide.with(context)
                 .using(new FirebaseImageLoader())
@@ -70,7 +72,7 @@ public class AdapterLayanan extends ArrayAdapter {
             public void onClick(View v) {
                 new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                         .setTitleText("Apa anda yakin?")
-                        .setContentText("Anda akan memesan layanan " +daftar_poli.get(i).pelayanan + "!")
+                        .setContentText("Anda akan memesan layanan " + daftar_poli.get(i).pelayanan + "!")
                         .setConfirmText("Ya, saya yakin!")
                         .setCancelText("Batal")
                         .showCancelButton(true)
@@ -85,8 +87,7 @@ public class AdapterLayanan extends ArrayAdapter {
                             public void onClick(SweetAlertDialog sDialog) {
                                 fl.setVisibility(View.VISIBLE);
                                 f2.setVisibility(View.GONE);
-                                sDialog
-                                        .setTitleText("Berhasil!")
+                                sDialog.setTitleText("Berhasil!")
                                         .setContentText("Anda telah masuk dalam antrian!")
                                         .setConfirmText("OK")
                                         .showCancelButton(false)
@@ -99,5 +100,39 @@ public class AdapterLayanan extends ArrayAdapter {
         });
 
         return viewRow;
+    }
+
+    public boolean cekKetersediaan(String hari, String waktu){
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        String hari_now = "";
+        switch (day) {
+            case Calendar.SUNDAY:
+                hari_now = "minggu";
+                break;
+            case Calendar.MONDAY:
+                hari_now = "senin";
+                break;
+            case Calendar.TUESDAY:
+                hari_now = "selasa";
+                break;
+            case Calendar.WEDNESDAY:
+                hari_now = "rabu";
+                break;
+            case Calendar.THURSDAY:
+                hari_now = "kamis";
+                break;
+            case Calendar.FRIDAY:
+                hari_now = "jum'at";
+                break;
+            case Calendar.SATURDAY:
+                hari_now = "sabtu";
+                break;
+            default:
+                hari_now = "tidak ada";
+        }
+        boolean cek_hari = hari.equalsIgnoreCase(hari_now);
+        String[] waktu_tersedia = waktu.split("-");
+        return true;
     }
 }
