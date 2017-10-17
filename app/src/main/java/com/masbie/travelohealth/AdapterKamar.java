@@ -67,6 +67,8 @@ public class AdapterKamar extends ArrayAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, PesanKamar.class);
+                intent.putExtra("gambar", daftar_kamar.get(i).gambar);
+                intent.putExtra("id_kamar", daftar_kamar.get(i).id);
                 context.startActivity(intent);
             }
         });

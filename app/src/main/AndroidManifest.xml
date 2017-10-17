@@ -47,7 +47,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.masbie.travelohealth"
+            android:authorities="com.masbie.travelohealth.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
