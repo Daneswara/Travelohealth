@@ -48,6 +48,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.masbie.travelohealth.object.User;
 
@@ -276,6 +277,8 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 User newuser = new User(mNamaView.getText().toString(), mEmailView.getText().toString());
                                 mDatabase.child("users").child(user.getUid()).setValue(newuser);
+                                String token = FirebaseInstanceId.getInstance().getToken();
+                                mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
                                 FirebaseMessaging.getInstance().subscribeToTopic("news");
                                 Intent masuk = new Intent(RegisterActivity.this, Home.class);
                                 startActivity(masuk);

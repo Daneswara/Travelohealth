@@ -50,6 +50,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
@@ -255,6 +256,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.d(TAG, "signInWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 prosses_login.dismissWithAnimation();
+                                String token = FirebaseInstanceId.getInstance().getToken();
+                                mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
                                 FirebaseMessaging.getInstance().subscribeToTopic("news");
                                 Intent masuk = new Intent(LoginActivity.this, Home.class);
                                 startActivity(masuk);

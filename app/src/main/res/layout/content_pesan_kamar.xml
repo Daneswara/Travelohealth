@@ -29,21 +29,6 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/tanggalkeluar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginLeft="@dimen/text_margin"
-            android:layout_marginRight="@dimen/text_margin"
-            android:layout_marginTop="@dimen/text_margin"
-            android:background="@color/colorPrimary"
-            android:text="Tanggal Keluar"
-            android:textAllCaps="false"
-            android:textColor="@color/colorWhite"
-            android:padding="10dp"
-            android:textSize="16sp" />
-
-        <Button
             android:id="@+id/upload"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,15 +38,15 @@
             android:layout_marginTop="@dimen/text_margin"
             android:background="@color/colorPrimary"
             android:textAllCaps="false"
-            android:text="Upload Foto Surat Rujukan"
+            android:text="Ambil Foto Surat Rujukan"
             android:textColor="@color/colorWhite"
             android:padding="10dp"
             android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/gambar"
-            android:layout_width="300dp"
-            android:layout_height="500dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/text_margin"
             android:layout_marginRight="@dimen/text_margin"
             android:layout_marginTop="10dp"

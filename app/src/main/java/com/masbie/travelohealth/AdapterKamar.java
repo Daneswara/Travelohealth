@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -39,6 +41,7 @@ public class AdapterKamar extends ArrayAdapter {
         this.daftar_kamar = daftar_kamar;
         this.context = context;
     }
+
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = (LayoutInflater) context
@@ -56,22 +59,46 @@ public class AdapterKamar extends ArrayAdapter {
         fasilitas.setText(daftar_kamar.get(i).fasilitas);
         mtextView.setText(daftar_kamar.get(i).kelas);
 
-        StorageReference storageRef = storage.getReference().child("images/"+daftar_kamar.get(i).gambar);
+        StorageReference storageRef = storage.getReference().child("images/" + daftar_kamar.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);
         Glide.with(context)
                 .using(new FirebaseImageLoader())
                 .load(storageRef)
                 .into(mimageView);
 
-        pesan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, PesanKamar.class);
-                intent.putExtra("gambar", daftar_kamar.get(i).gambar);
-                intent.putExtra("id_kamar", daftar_kamar.get(i).id);
-                context.startActivity(intent);
-            }
-        });
+        if (daftar_kamar.get(i).kapasitas > daftar_kamar.get(i).terisi) {
+            pesan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, PesanKamar.class);
+                    intent.putExtra("gambar", daftar_kamar.get(i).gambar);
+                    intent.putExtra("id_kamar", daftar_kamar.get(i).id);
+                    intent.putExtra("kelas", daftar_kamar.get(i).kelas);
+                    intent.putExtra("harga", daftar_kamar.get(i).harga);
+                    context.startActivity(intent);
+                }
+            });
+        } else {
+            pesan.setText("PENUH");
+            pesan.setBackgroundColor(Color.GRAY);
+            pesan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Mohon maaf!")
+                            .setContentText("Kamar "+daftar_kamar.get(i).kelas+" sudah penuh.")
+                            .setConfirmText("OK")
+                            .showCancelButton(false)
+                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                @Override
+                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                    sweetAlertDialog.dismissWithAnimation();
+                                }
+                            })
+                            .show();
+                }
+            });
+        }
 
 
         return viewRow;

@@ -110,14 +110,6 @@
                     android:layout_height="wrap_content"
                     android:text="daneswarajauhari@gmail.com"/>
             </LinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingRight="16dp"
-                android:textColor="@color/colorAccent"
-                android:textAlignment="viewEnd"
-                android:text="EDIT"/>
         </LinearLayout>
 
         <!--<LinearLayout-->
