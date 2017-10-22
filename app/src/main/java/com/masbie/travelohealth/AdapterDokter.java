@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,99 +25,109 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Pesan;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-
-import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-
-import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
  */
 
-public class AdapterDokter extends ArrayAdapter {
+public class AdapterDokter extends ArrayAdapter
+{
     List<Dokter> daftar_dokter;
     Context context;
+    BottomNavigationView navigation;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
     private LinearLayout fl, f2;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    BottomNavigationView navigation;
 
-    public AdapterDokter(Activity context, List<Dokter> daftar_dokter) {
+    public AdapterDokter(Activity context, List<Dokter> daftar_dokter)
+    {
         super(context, R.layout.layout_dokter_listview, daftar_dokter);
         this.context = context;
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         this.daftar_dokter = daftar_dokter;
-        fl = (LinearLayout) context.findViewById(R.id.transaksi);
-        f2 = (LinearLayout) context.findViewById(R.id.dokter);
+        fl = context.findViewById(R.id.transaksi);
+        f2 = context.findViewById(R.id.dokter);
         navigation = context.findViewById(R.id.navigation);
     }
 
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-
-
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup)
+    {
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewRow = layoutInflater.inflate(R.layout.layout_dokter_listview, null,
                 true);
-        TextView mtextView = (TextView) viewRow.findViewById(R.id.namadokter);
-        TextView jam = (TextView) viewRow.findViewById(R.id.jampraktek);
-        TextView pesan = (TextView) viewRow.findViewById(R.id.pesanDokter);
+        TextView mtextView = viewRow.findViewById(R.id.namadokter);
+        TextView jam = viewRow.findViewById(R.id.jampraktek);
+        TextView pesan = viewRow.findViewById(R.id.pesanDokter);
         mtextView.setText(daftar_dokter.get(i).nama);
         jam.setText(daftar_dokter.get(i).hari.toUpperCase() + "\n" + daftar_dokter.get(i).jampraktek);
 
         StorageReference storageRef = storage.getReference().child("images/" + daftar_dokter.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);
         Glide.with(context)
-                .using(new FirebaseImageLoader())
-                .load(storageRef)
-                .into(mimageView);
-        if (!cekKetersediaan(daftar_dokter.get(i).hari, daftar_dokter.get(i).jampraktek)) {
+             .using(new FirebaseImageLoader())
+             .load(storageRef)
+             .into(mimageView);
+        if(!cekKetersediaan(daftar_dokter.get(i).hari, daftar_dokter.get(i).jampraktek))
+        {
             pesan.setText("TUTUP");
             pesan.setBackgroundColor(Color.GRAY);
-            pesan.setOnClickListener(new View.OnClickListener() {
+            pesan.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View view)
+                {
                     new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Layanan TUTUP!")
                             .setContentText("Anda dapat mencoba lagi ketika layanan telah dibuka.")
                             .show();
                 }
             });
-        } else {
-            pesan.setOnClickListener(new View.OnClickListener() {
+        }
+        else
+        {
+            pesan.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View v)
+                {
                     new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                             .setTitleText("Apa anda yakin?")
                             .setContentText("Anda akan memesan " + daftar_dokter.get(i).nama + "!")
                             .setConfirmText("Ya, saya yakin!")
                             .setCancelText("Batal")
                             .showCancelButton(true)
-                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
+                            {
                                 @Override
-                                public void onClick(SweetAlertDialog sDialog) {
+                                public void onClick(SweetAlertDialog sDialog)
+                                {
                                     sDialog.cancel();
                                 }
                             })
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                            {
                                 @Override
-                                public void onClick(final SweetAlertDialog sDialog) {
+                                public void onClick(final SweetAlertDialog sDialog)
+                                {
                                     Calendar calendar = Calendar.getInstance();
                                     String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                    mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).addListenerForSingleValueEvent(new ValueEventListener()
+                                    {
                                         @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                        {
                                             Calendar calendar = Calendar.getInstance();
                                             String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                             calendar.add(Calendar.HOUR, 2);
-                                            if(!dataSnapshot.hasChild("antrian")){
+                                            if(!dataSnapshot.hasChild("antrian"))
+                                            {
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").setValue(1);
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("proses").setValue(1);
                                                 Pesan pesanan = new Pesan(daftar_dokter.get(i).id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(), daftar_dokter.get(i).gambar);
@@ -129,15 +139,19 @@ public class AdapterDokter extends ArrayAdapter {
                                                         .showCancelButton(false)
                                                         .setConfirmClickListener(null)
                                                         .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                            } else {
-                                                mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            }
+                                            else
+                                            {
+                                                mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").addListenerForSingleValueEvent(new ValueEventListener()
+                                                {
                                                     @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    public void onDataChange(DataSnapshot dataSnapshot)
+                                                    {
                                                         Calendar calendar = Calendar.getInstance();
                                                         String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                                         calendar.add(Calendar.HOUR, 2);
-                                                        mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").setValue((long)dataSnapshot.getValue()+1);
-                                                        Pesan pesanan = new Pesan(daftar_dokter.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_dokter.get(i).gambar);
+                                                        mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child("antrian").setValue((long) dataSnapshot.getValue() + 1);
+                                                        Pesan pesanan = new Pesan(daftar_dokter.get(i).id, (long) dataSnapshot.getValue() + 1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_dokter.get(i).gambar);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_dokter.get(i).poli).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                         fl.setVisibility(View.VISIBLE);
                                                         f2.setVisibility(View.GONE);
@@ -152,7 +166,8 @@ public class AdapterDokter extends ArrayAdapter {
                                                     }
 
                                                     @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
+                                                    public void onCancelled(DatabaseError databaseError)
+                                                    {
 
                                                     }
                                                 });
@@ -163,11 +178,11 @@ public class AdapterDokter extends ArrayAdapter {
                                         }
 
                                         @Override
-                                        public void onCancelled(DatabaseError databaseError) {
+                                        public void onCancelled(DatabaseError databaseError)
+                                        {
 
                                         }
                                     });
-
 
 
                                 }
@@ -180,14 +195,16 @@ public class AdapterDokter extends ArrayAdapter {
         return viewRow;
     }
 
-    public boolean cekKetersediaan(String hari, String waktu) {
+    public boolean cekKetersediaan(String hari, String waktu)
+    {
         waktu = waktu.replace(".", "titik");
         hari = hari.replace(" ", "");
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         String semuahari[] = hari.split(",");
         String hari_now = "";
-        switch (day) {
+        switch(day)
+        {
             case Calendar.SUNDAY:
                 hari_now = "minggu";
                 break;
@@ -213,8 +230,10 @@ public class AdapterDokter extends ArrayAdapter {
                 hari_now = "tidak ada";
         }
         boolean cek_hari = false;
-        for (int i = 0; i < semuahari.length; i++) {
-            if (semuahari[i].equalsIgnoreCase(hari_now)) {
+        for(int i = 0; i < semuahari.length; i++)
+        {
+            if(semuahari[i].equalsIgnoreCase(hari_now))
+            {
                 cek_hari = true;
             }
         }

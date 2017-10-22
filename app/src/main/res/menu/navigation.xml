@@ -2,28 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_transfer_within_a_station"
-        android:title="@string/title_home" />
+            android:id="@+id/navigation_home"
+            android:icon="@drawable/ic_transfer_within_a_station"
+            android:title="@string/title_home" />
 
     <item
-        android:id="@+id/navigation_layanan"
-        android:icon="@drawable/ic_business"
-        android:title="@string/title_layanan" />
+            android:id="@+id/navigation_layanan"
+            android:icon="@drawable/ic_business"
+            android:title="@string/title_layanan" />
 
     <item
-        android:id="@+id/navigation_dokter"
-        android:icon="@drawable/ic_accessibility"
-        android:title="@string/title_dokter" />
+            android:id="@+id/navigation_dokter"
+            android:icon="@drawable/ic_accessibility"
+            android:title="@string/title_dokter" />
 
     <item
-        android:id="@+id/navigation_kamar"
-        android:icon="@drawable/ic_airline_seat_flat"
-        android:title="@string/title_kamar" />
+            android:id="@+id/navigation_kamar"
+            android:icon="@drawable/ic_airline_seat_flat"
+            android:title="@string/title_kamar" />
 
     <item
-        android:id="@+id/navigation_akun"
-        android:icon="@drawable/ic_account_circle"
-        android:title="@string/title_akun" />
+            android:id="@+id/navigation_akun"
+            android:icon="@drawable/ic_account_circle"
+            android:title="@string/title_akun" />
 
 </menu>

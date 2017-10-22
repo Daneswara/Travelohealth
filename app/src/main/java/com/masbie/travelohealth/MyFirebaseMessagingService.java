@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -17,7 +15,8 @@ import com.google.firebase.messaging.RemoteMessage;
  * Created by Daneswara on 18/10/2017.
  */
 
-public class MyFirebaseMessagingService extends FirebaseMessagingService {
+public class MyFirebaseMessagingService extends FirebaseMessagingService
+{
     private static final String TAG = "MyFirebaseMsgService";
     static int notifId = -1;
 
@@ -28,7 +27,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     // [START receive_message]
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(RemoteMessage remoteMessage)
+    {
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -40,26 +40,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // [END_EXCLUDE]
 
 
-        if (remoteMessage.getData().size() > 0) {
+        if(remoteMessage.getData().size() > 0)
+        {
             String topic = remoteMessage.getFrom().replace("/topics/", "");
 
             String pesanan = remoteMessage.getData().get("pesanan");
-            if(pesanan.equals("service")) {
+            if(pesanan.equals("service"))
+            {
                 String status = remoteMessage.getData().get("status");
-                if(status.equals("antrian")) {
+                if(status.equals("antrian"))
+                {
                     String antrian = remoteMessage.getData().get("antrian");
                     sendNotification("Travelohealth - " + topic, "Sekarang antrian ke-" + antrian);
-                } else if(status.equals("proses")){
+                }
+                else if(status.equals("proses"))
+                {
                     sendNotification("Travelohealth - " + topic, "Sekarang nomer antrian anda");
                     FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
                 }
 
-            } else if(pesanan.equals("room")) {
+            }
+            else if(pesanan.equals("room"))
+            {
                 String validasi = remoteMessage.getData().get("validasi");
-                if(validasi.equals("1")){
+                if(validasi.equals("1"))
+                {
                     String nomerkamar = remoteMessage.getData().get("nomerkamar");
-                    sendNotification("Travelohealth", "Selamat validasi anda berhasil, anda bisa menempati kamar "+nomerkamar);
-                } else {
+                    sendNotification("Travelohealth", "Selamat validasi anda berhasil, anda bisa menempati kamar " + nomerkamar);
+                }
+                else
+                {
                     sendNotification("Travelohealth", "Mohon maaf validasi pesanan anda gagal");
                 }
 
@@ -76,7 +86,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String title, String messageBody) {
+    private void sendNotification(String title, String messageBody)
+    {
         Intent intent = new Intent(this, Home.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,

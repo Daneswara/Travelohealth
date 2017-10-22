@@ -7,7 +7,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
  */
 
 @IgnoreExtraProperties
-public class Pesan {
+public class Pesan
+{
 
     public String id_pemesanan;
     public long no_antrian;
@@ -16,11 +17,13 @@ public class Pesan {
     public String uid_pasien;
     public String gambar;
 
-    public Pesan() {
+    public Pesan()
+    {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public Pesan(String id_pemesanan, long no_antrian, long pelayanan, String status, String uid_pasien, String gambar) {
+    public Pesan(String id_pemesanan, long no_antrian, long pelayanan, String status, String uid_pasien, String gambar)
+    {
         this.id_pemesanan = id_pemesanan;
         this.no_antrian = no_antrian;
         this.pelayanan = pelayanan;

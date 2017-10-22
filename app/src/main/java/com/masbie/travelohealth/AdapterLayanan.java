@@ -2,7 +2,6 @@ package com.masbie.travelohealth;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.BottomNavigationView;
 import android.view.LayoutInflater;
@@ -12,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,28 +25,26 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.masbie.travelohealth.object.Pesan;
 import com.masbie.travelohealth.object.Poli;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-
-import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
  */
 
-public class AdapterLayanan extends ArrayAdapter {
+public class AdapterLayanan extends ArrayAdapter
+{
     Context context;
-    private LinearLayout fl, f2;
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
     List<Poli> daftar_poli;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     BottomNavigationView navigation;
+    private LinearLayout fl, f2;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
-    public AdapterLayanan(Activity context, List<Poli> daftar_poli) {
+    public AdapterLayanan(Activity context, List<Poli> daftar_poli)
+    {
         super(context, R.layout.layout_layanan_listview, daftar_poli);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -60,7 +57,8 @@ public class AdapterLayanan extends ArrayAdapter {
 
 
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup)
+    {
         LayoutInflater layoutInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewRow = layoutInflater.inflate(R.layout.layout_layanan_listview, null,
@@ -71,50 +69,64 @@ public class AdapterLayanan extends ArrayAdapter {
 
         mtextView.setText(daftar_poli.get(i).pelayanan);
         jam.setText(daftar_poli.get(i).hari.toUpperCase() + "\n" + daftar_poli.get(i).jamkerja);
-        System.out.println("cek keter"+cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja));
-        if (!cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja)) {
+        System.out.println("cek keter" + cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja));
+        if(!cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja))
+        {
             pesan.setText("TUTUP");
             pesan.setBackgroundColor(Color.GRAY);
-            pesan.setOnClickListener(new View.OnClickListener() {
+            pesan.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View view)
+                {
                     new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Layanan TUTUP!")
                             .setContentText("Anda dapat mencoba lagi ketika layanan " + daftar_poli.get(i).pelayanan + " telah dibuka.")
                             .show();
                 }
             });
-        } else {
-            pesan.setOnClickListener(new View.OnClickListener() {
+        }
+        else
+        {
+            pesan.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View v)
+                {
                     new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                             .setTitleText("Apa anda yakin?")
                             .setContentText("Anda akan memesan layanan " + daftar_poli.get(i).pelayanan + "!")
                             .setConfirmText("Ya, saya yakin!")
                             .setCancelText("Batal")
                             .showCancelButton(true)
-                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
+                            {
                                 @Override
-                                public void onClick(SweetAlertDialog sDialog) {
+                                public void onClick(SweetAlertDialog sDialog)
+                                {
                                     sDialog.cancel();
                                 }
                             })
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                            {
                                 @Override
-                                public void onClick(final SweetAlertDialog sDialog) {
+                                public void onClick(final SweetAlertDialog sDialog)
+                                {
                                     Calendar calendar = Calendar.getInstance();
                                     String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                    mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).addListenerForSingleValueEvent(new ValueEventListener()
+                                    {
                                         @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                        {
                                             Calendar calendar = Calendar.getInstance();
                                             String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                             calendar.add(Calendar.HOUR, 2);
-                                            if(!dataSnapshot.hasChild("antrian")){
+                                            if(!dataSnapshot.hasChild("antrian"))
+                                            {
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").setValue(1);
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("proses").setValue(1);
-                                                Pesan pesanan = new Pesan(daftar_poli.get(i).id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(),daftar_poli.get(i).gambar);
+                                                Pesan pesanan = new Pesan(daftar_poli.get(i).id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(), daftar_poli.get(i).gambar);
                                                 mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                 sDialog
                                                         .setTitleText("Berhasil!")
@@ -123,15 +135,19 @@ public class AdapterLayanan extends ArrayAdapter {
                                                         .showCancelButton(false)
                                                         .setConfirmClickListener(null)
                                                         .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                            } else {
-                                                mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            }
+                                            else
+                                            {
+                                                mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").addListenerForSingleValueEvent(new ValueEventListener()
+                                                {
                                                     @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    public void onDataChange(DataSnapshot dataSnapshot)
+                                                    {
                                                         Calendar calendar = Calendar.getInstance();
                                                         String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                                         calendar.add(Calendar.HOUR, 2);
-                                                        mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").setValue((long)dataSnapshot.getValue()+1);
-                                                        Pesan pesanan = new Pesan(daftar_poli.get(i).id, (long)dataSnapshot.getValue()+1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_poli.get(i).gambar);
+                                                        mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child("antrian").setValue((long) dataSnapshot.getValue() + 1);
+                                                        Pesan pesanan = new Pesan(daftar_poli.get(i).id, (long) dataSnapshot.getValue() + 1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), daftar_poli.get(i).gambar);
                                                         mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
                                                         fl.setVisibility(View.VISIBLE);
                                                         f2.setVisibility(View.GONE);
@@ -146,7 +162,8 @@ public class AdapterLayanan extends ArrayAdapter {
                                                     }
 
                                                     @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
+                                                    public void onCancelled(DatabaseError databaseError)
+                                                    {
 
                                                     }
                                                 });
@@ -156,7 +173,8 @@ public class AdapterLayanan extends ArrayAdapter {
                                         }
 
                                         @Override
-                                        public void onCancelled(DatabaseError databaseError) {
+                                        public void onCancelled(DatabaseError databaseError)
+                                        {
 
                                         }
                                     });
@@ -169,23 +187,24 @@ public class AdapterLayanan extends ArrayAdapter {
         StorageReference storageRef = storage.getReference().child("images/" + daftar_poli.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);
         Glide.with(context)
-                .using(new FirebaseImageLoader())
-                .load(storageRef)
-                .into(mimageView);
-
+             .using(new FirebaseImageLoader())
+             .load(storageRef)
+             .into(mimageView);
 
 
         return viewRow;
     }
 
-    public boolean cekKetersediaan(String hari, String waktu) {
+    public boolean cekKetersediaan(String hari, String waktu)
+    {
         waktu = waktu.replace(".", "titik");
         hari = hari.replace(" ", "");
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         String semuahari[] = hari.split(",");
         String hari_now = "";
-        switch (day) {
+        switch(day)
+        {
             case Calendar.SUNDAY:
                 hari_now = "minggu";
                 break;
@@ -211,8 +230,10 @@ public class AdapterLayanan extends ArrayAdapter {
                 hari_now = "tidak ada";
         }
         boolean cek_hari = false;
-        for (int i = 0; i < semuahari.length; i++) {
-            if (semuahari[i].equalsIgnoreCase(hari_now)) {
+        for(int i = 0; i < semuahari.length; i++)
+        {
+            if(semuahari[i].equalsIgnoreCase(hari_now))
+            {
                 cek_hari = true;
             }
         }
@@ -229,8 +250,8 @@ public class AdapterLayanan extends ArrayAdapter {
         int konv_waktuawal = Integer.parseInt(waktuawal[0]) * 60 + Integer.parseInt(waktuawal[1]);
         int konv_waktuakhir = Integer.parseInt(waktuakhir[0]) * 60 + Integer.parseInt(waktuakhir[1]);
         boolean cek_waktu = konv_waktu >= konv_waktuawal && konv_waktu <= konv_waktuakhir;
-        System.out.println("cek hari"+cek_hari);
-        System.out.println("cek waktu"+cek_waktu);
+        System.out.println("cek hari" + cek_hari);
+        System.out.println("cek waktu" + cek_waktu);
         return cek_hari && cek_waktu;
     }
 }

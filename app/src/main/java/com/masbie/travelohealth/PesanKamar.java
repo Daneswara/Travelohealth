@@ -1,29 +1,23 @@
 package com.masbie.travelohealth;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
-
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,35 +30,33 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.masbie.travelohealth.object.Pesan;
 import com.masbie.travelohealth.object.ValidasiKamar;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import cn.pedant.SweetAlert.SweetAlertDialog;
-
-public class PesanKamar extends AppCompatActivity implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener {
+public class PesanKamar extends AppCompatActivity implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener
+{
+    private static final int REQUEST_IMAGE_CAPTURE = 0x01;
     Button tanggal;
     Button upload;
     ImageView gambar;
     FirebaseStorage storage = FirebaseStorage.getInstance();
-    private static final int REQUEST_IMAGE_CAPTURE = 0x01;
+    Bitmap imageBitmap = null;
+    File gambarUpload;
     private String photoTaken;
     private DatabaseReference mDatabase;
     private SweetAlertDialog proses_kirim;
+    private String tanggalpilihan = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pesan_kamar);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -75,49 +67,63 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         final String getKelas = getIntent().getExtras().getString("kelas", null);
         final long getHarga = getIntent().getExtras().getLong("harga", 0);
 
-        if (getGambar == null || getKamar == null || getKelas == null || getHarga == 0) {
+        if(getGambar == null || getKamar == null || getKelas == null || getHarga == 0)
+        {
             finish();
-        } else {
+        }
+        else
+        {
             toolbar.setTitle("Pesan Kamar " + getKelas);
             ImageView toolbar_layout = findViewById(R.id.image_toolbar);
             StorageReference storageRef = storage.getReference().child("images/" + getGambar);
             Glide.with(this)
-                    .using(new FirebaseImageLoader())
-                    .load(storageRef)
-                    .into(toolbar_layout);
+                 .using(new FirebaseImageLoader())
+                 .load(storageRef)
+                 .into(toolbar_layout);
 
             FloatingActionButton fab = findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener() {
+            fab.setOnClickListener(new View.OnClickListener()
+            {
                 @Override
-                public void onClick(View view) {
-                    if (tanggalpilihan == null) {
+                public void onClick(View view)
+                {
+                    if(tanggalpilihan == null)
+                    {
                         new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.ERROR_TYPE)
                                 .setTitleText("Pilih Tanggal Pemesanan!")
                                 .setConfirmText("OK")
                                 .showCancelButton(false)
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                {
                                     @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                    public void onClick(SweetAlertDialog sweetAlertDialog)
+                                    {
                                         sweetAlertDialog.dismissWithAnimation();
                                     }
                                 })
                                 .show();
-                    } else {
+                    }
+                    else
+                    {
                         new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.WARNING_TYPE)
                                 .setTitleText("Apa anda yakin?")
                                 .setContentText("Anda akan memesan kamar pada tanggal " + tanggalpilihan + "!")
                                 .setConfirmText("Ya, saya yakin!")
                                 .setCancelText("Batal")
                                 .showCancelButton(true)
-                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                {
                                     @Override
-                                    public void onClick(SweetAlertDialog sDialog) {
+                                    public void onClick(SweetAlertDialog sDialog)
+                                    {
                                         sDialog.cancel();
                                     }
                                 })
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                {
                                     @Override
-                                    public void onClick(final SweetAlertDialog sDialog) {
+                                    public void onClick(final SweetAlertDialog sDialog)
+                                    {
                                         proses_kirim = new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.PROGRESS_TYPE);
                                         proses_kirim.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
                                         proses_kirim.setTitleText("Loading");
@@ -129,32 +135,43 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                         StorageReference ImagesRef = storageRef.child("surat-rujukan/SR - " + time + ".jpg");
 
                                         InputStream stream = null;
-                                        if (gambarUpload != null) {
-                                            try {
+                                        if(gambarUpload != null)
+                                        {
+                                            try
+                                            {
                                                 stream = new FileInputStream(gambarUpload);
-                                            } catch (FileNotFoundException e) {
+                                            }
+                                            catch(FileNotFoundException e)
+                                            {
                                                 e.printStackTrace();
                                             }
                                             UploadTask uploadTask = ImagesRef.putStream(stream);
-                                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                            uploadTask.addOnFailureListener(new OnFailureListener()
+                                            {
                                                 @Override
-                                                public void onFailure(@NonNull Exception exception) {
+                                                public void onFailure(@NonNull Exception exception)
+                                                {
                                                     // Handle unsuccessful uploads
                                                     exception.printStackTrace();
                                                 }
-                                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
+                                            {
                                                 @Override
-                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+                                                {
                                                     mDatabase.child("pesankamar").child(String.valueOf(time)).setValue(new ValidasiKamar(getKamar, tanggalpilihan, getKelas, getHarga, "SR - " + time + ".jpg"));
-                                                    mDatabase.child("kamar").child(getKamar).child("terisi").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    mDatabase.child("kamar").child(getKamar).child("terisi").addListenerForSingleValueEvent(new ValueEventListener()
+                                                    {
                                                         @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                                        {
                                                             long jumlahterisi = dataSnapshot.getValue(long.class);
                                                             mDatabase.child("kamar").child(getKamar).child("terisi").setValue(jumlahterisi + 1);
                                                         }
 
                                                         @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
+                                                        public void onCancelled(DatabaseError databaseError)
+                                                        {
 
                                                         }
                                                     });
@@ -165,9 +182,11 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .setContentText("Tunggu konfirmasi dari operator!")
                                                             .setConfirmText("OK")
                                                             .showCancelButton(false)
-                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                                            {
                                                                 @Override
-                                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                                public void onClick(SweetAlertDialog sweetAlertDialog)
+                                                                {
                                                                     Intent intent = new Intent(PesanKamar.this, Home.class);
                                                                     startActivity(intent);
                                                                     finish();
@@ -176,16 +195,20 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
                                             });
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             proses_kirim.dismissWithAnimation();
                                             sDialog
                                                     .setTitleText("Upload Surat Rujukan!")
                                                     .setContentText("Mohon upload surat rujukan dengan melakukan foto pada surat!")
                                                     .setConfirmText("OK")
                                                     .showCancelButton(false)
-                                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                                    {
                                                         @Override
-                                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                        public void onClick(SweetAlertDialog sweetAlertDialog)
+                                                        {
                                                             sDialog.dismissWithAnimation();
                                                         }
                                                     })
@@ -203,9 +226,11 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         upload = findViewById(R.id.upload);
         gambar = findViewById(R.id.gambar);
 
-        tanggal.setOnClickListener(new View.OnClickListener() {
+        tanggal.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 Calendar now = Calendar.getInstance();
                 com.wdullaer.materialdatetimepicker.date.DatePickerDialog dpd = com.wdullaer.materialdatetimepicker.date.DatePickerDialog.newInstance(
                         PesanKamar.this,
@@ -221,26 +246,34 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
             }
         });
 
-        upload.setOnClickListener(new View.OnClickListener() {
+        upload.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 photoTaken = null;
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 // Ensure that there's a camera activity to handle the intent
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                if(takePictureIntent.resolveActivity(getPackageManager()) != null)
+                {
                     // Create the File where the photo should go
                     File photoFile = null;
-                    try {
+                    try
+                    {
                         photoFile = createImagePath();
-                    } catch (IOException ex) {
+                    }
+                    catch(IOException ex)
+                    {
                         ex.printStackTrace();
                     }
                     // Continue only if the File was successfully created
                     photoTaken = photoFile.getName().toString();
-                    if (photoFile != null) {
+                    if(photoFile != null)
+                    {
                         Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.masbie.travelohealth.fileprovider", photoFile);
                         List<ResolveInfo> resolvedIntentActivities = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                        for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
+                        for(ResolveInfo resolvedIntentInfo : resolvedIntentActivities)
+                        {
                             String packageName = resolvedIntentInfo.activityInfo.packageName;
 
                             grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -254,7 +287,8 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
 
     }
 
-    public File createImagePath() throws IOException {
+    public File createImagePath() throws IOException
+    {
         // Create an image file name
         File storageDir = this.getFilesDir();
         File image = File.createTempFile(
@@ -267,33 +301,36 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         return image;
     }
 
-    Bitmap imageBitmap = null;
-    File gambarUpload;
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent)
+    {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            if (this.photoTaken != null) {
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
+        {
+            if(this.photoTaken != null)
+            {
                 gambarUpload = new File(getFilesDir(), photoTaken);
-                try {
+                try
+                {
                     Bitmap b = BitmapFactory.decodeStream(new FileInputStream(gambarUpload));
-                    if (b != null) {
+                    if(b != null)
+                    {
 
                         gambar.setImageBitmap(b);
-//                        this.onSubmitRoomButtonClickedCommit(imageFile);
+                        //                        this.onSubmitRoomButtonClickedCommit(imageFile);
                     }
-                } catch (FileNotFoundException e) {
+                }
+                catch(FileNotFoundException e)
+                {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private String tanggalpilihan = null;
-
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth)
+    {
         String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", (monthOfYear + 1)) + "-" + year;
         tanggal.setText("Tanggal Pesan: " + date);
         tanggalpilihan = date;

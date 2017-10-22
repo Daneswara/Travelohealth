@@ -1,7 +1,6 @@
 package com.masbie.travelohealth.object;
 
 import com.google.firebase.database.IgnoreExtraProperties;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -10,17 +9,20 @@ import java.util.Calendar;
  */
 
 @IgnoreExtraProperties
-public class User {
+public class User
+{
 
     public String name;
     public String email;
     public String register;
 
-    public User() {
+    public User()
+    {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String name, String email) {
+    public User(String name, String email)
+    {
         this.name = name;
         this.email = email;
         this.register = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());

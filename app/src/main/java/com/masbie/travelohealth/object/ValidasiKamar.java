@@ -7,7 +7,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
  */
 
 @IgnoreExtraProperties
-public class ValidasiKamar {
+public class ValidasiKamar
+{
 
     public String gambar;
     public String id_kamar;
@@ -15,11 +16,13 @@ public class ValidasiKamar {
     public String kelas;
     public long harga;
 
-    public ValidasiKamar() {
+    public ValidasiKamar()
+    {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public ValidasiKamar(String id_kamar, String tanggal, String kelas, long harga, String gambar) {
+    public ValidasiKamar(String id_kamar, String tanggal, String kelas, long harga, String gambar)
+    {
         this.id_kamar = id_kamar;
         this.gambar = gambar;
         this.tanggal = tanggal;
