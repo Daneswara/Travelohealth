@@ -44,9 +44,6 @@ public class LoginActivity extends AppCompatActivity
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
-    private View mSignUpFormView;
 
 
     @Override
@@ -93,9 +90,7 @@ public class LoginActivity extends AppCompatActivity
                 }
             });
 
-            mLoginFormView = findViewById(R.id.login_form);
-            mSignUpFormView = findViewById(R.id.signup);
-            mProgressView = findViewById(R.id.login_progress);
+            View mSignUpFormView = findViewById(R.id.signup);
             mSignUpFormView.setOnClickListener(new OnClickListener()
             {
                 @Override
@@ -156,15 +151,10 @@ public class LoginActivity extends AppCompatActivity
 
         if(cancel)
         {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         }
         else
         {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            //showProgress(true);
             prosses_login = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
             prosses_login.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
             prosses_login.setTitleText("Loading");
@@ -176,10 +166,8 @@ public class LoginActivity extends AppCompatActivity
                      @Override
                      public void onComplete(@NonNull Task<AuthResult> task)
                      {
-
                          if(task.isSuccessful())
                          {
-                             // Sign in success, update UI with the signed-in user's information
                              Log.d(TAG, "signInWithEmail:success");
                              FirebaseUser user = mAuth.getCurrentUser();
                              prosses_login.dismissWithAnimation();
@@ -192,11 +180,8 @@ public class LoginActivity extends AppCompatActivity
                          }
                          else
                          {
-                             // If sign in fails, display a message to the user.
                              Log.w(TAG, "signInWithEmail:failure", task.getException());
                          }
-
-                         // ...
                      }
                  }).addOnFailureListener(new OnFailureListener()
             {
