@@ -113,11 +113,17 @@
     <string name="error_invalid_cek_password">This password does not match</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="title_activity_register">Sign Up</string>
     <string name="enter_name">Enter Name</string>
 
-    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="default_notification_channel_id" translatable="false">travelohealth</string>
+    <string name="default_notification_channel_name">queue</string>
+    <string name="shared_prefs_token">token</string>
+    <string name="shared_prefs_token_token">token</string>
+    <string name="shared_prefs_token_refresh">refresh</string>
+    <string name="shared_prefs_account">account</string>
+    <string name="shared_prefs_account_id">id</string>
+    <string name="shared_prefs_account_username">username</string>
+    <string name="shared_prefs_account_identity">identity</string>
 </resources>
