@@ -1,12 +1,12 @@
 package com.masbie.travelohealth;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,19 +17,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseNetworkException;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.masbie.travelohealth.dao.TokenDao;
+import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
+import com.masbie.travelohealth.dao.external.auth.LoginDao;
+import com.masbie.travelohealth.dao.external.personal.AccountDao;
+import com.masbie.travelohealth.pojo.auth.FcmTokenPojo;
+import com.masbie.travelohealth.pojo.auth.TokenPojo;
+import com.masbie.travelohealth.pojo.auth.UserLoginPojo;
+import com.masbie.travelohealth.pojo.personal.AccountPojo;
+import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.response.ResultPojo;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import timber.log.Timber;
 
 /**
  * A login screen that offers login via email/password.
@@ -37,70 +40,57 @@ import com.google.firebase.messaging.FirebaseMessaging;
 public class LoginActivity extends AppCompatActivity
 {
     private static final String TAG = "Login Service";
-    SweetAlertDialog prosses_login;
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private SweetAlertDialog prosses_login;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        Timber.d("onCreate");
+
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null)
-        {
-            Intent keluar = new Intent(LoginActivity.this, Home.class);
-            startActivity(keluar);
-            finish();
-        }
-        else
-        {
-            setContentView(R.layout.activity_login);
-            // Set up the login form.
-            mEmailView = findViewById(R.id.email);
+        setContentView(R.layout.activity_login);
+        // Set up the login form.
+        mEmailView = findViewById(R.id.email);
 
-            mPasswordView = findViewById(R.id.password);
-            mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
+        mPasswordView = findViewById(R.id.password);
+        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
             {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
-                {
-                    if(id == R.id.login || id == EditorInfo.IME_NULL)
-                    {
-                        attemptLogin();
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-            Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
-            mEmailSignInButton.setOnClickListener(new OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
+                if(id == R.id.login || id == EditorInfo.IME_NULL)
                 {
                     attemptLogin();
+                    return true;
                 }
-            });
+                return false;
+            }
+        });
 
-            View mSignUpFormView = findViewById(R.id.signup);
-            mSignUpFormView.setOnClickListener(new OnClickListener()
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
             {
-                @Override
-                public void onClick(View view)
-                {
-                    Intent regis = new Intent(LoginActivity.this, RegisterActivity.class);
-                    startActivity(regis);
-                }
-            });
-        }
+                attemptLogin();
+            }
+        });
+
+        View mSignUpFormView = findViewById(R.id.signup);
+        mSignUpFormView.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent regis = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(regis);
+            }
+        });
     }
 
     /**
@@ -110,6 +100,8 @@ public class LoginActivity extends AppCompatActivity
      */
     private void attemptLogin()
     {
+        Timber.d("attemptLogin");
+
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -142,12 +134,6 @@ public class LoginActivity extends AppCompatActivity
             focusView = mEmailView;
             cancel = true;
         }
-        else if(!isEmailValid(email))
-        {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
 
         if(cancel)
         {
@@ -158,67 +144,100 @@ public class LoginActivity extends AppCompatActivity
             prosses_login = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
             prosses_login.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
             prosses_login.setTitleText("Loading");
-            prosses_login.setCancelable(false);
+            prosses_login.setCancelable(true);
             prosses_login.show();
-            mAuth.signInWithEmailAndPassword(email, password)
-                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
-                 {
-                     @Override
-                     public void onComplete(@NonNull Task<AuthResult> task)
-                     {
-                         if(task.isSuccessful())
-                         {
-                             Log.d(TAG, "signInWithEmail:success");
-                             FirebaseUser user = mAuth.getCurrentUser();
-                             prosses_login.dismissWithAnimation();
-                             String token = FirebaseInstanceId.getInstance().getToken();
-                             mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
-                             FirebaseMessaging.getInstance().subscribeToTopic("news");
-                             Intent masuk = new Intent(LoginActivity.this, Home.class);
-                             startActivity(masuk);
-                             finish();
-                         }
-                         else
-                         {
-                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                         }
-                     }
-                 }).addOnFailureListener(new OnFailureListener()
+
+            final Call<ResponsePojo<TokenPojo>> login = LoginDao.login(new UserLoginPojo(email, password), this, new Callback<ResponsePojo<TokenPojo>>()
             {
-                @Override
-                public void onFailure(@NonNull Exception e)
+                @SuppressWarnings("ConstantConditions")
+                @Override public void onResponse(@NonNull Call<ResponsePojo<TokenPojo>> call, @NonNull Response<ResponsePojo<TokenPojo>> response)
+                {
+                    @NonNull final ResultPojo<TokenPojo> result = response.body().getData();
+                    if(result.getStatus() == 0)
+                    {
+                        prosses_login.dismissWithAnimation();
+                        Toast.makeText(LoginActivity.this, result.getMessage().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        TokenDao.storeToken(LoginActivity.this, result.getResult());
+                        LoginActivity.this.retrievePersonalAccount();
+                    }
+                }
+
+                @Override public void onFailure(@NonNull Call<ResponsePojo<TokenPojo>> call, @NonNull Throwable throwable)
                 {
                     prosses_login.dismissWithAnimation();
-                    if(e instanceof FirebaseAuthInvalidUserException)
-                    {
-                        Toast.makeText(LoginActivity.this, "This User Not Found , Create A New Account", Toast.LENGTH_SHORT).show();
-                        mEmailView.setError(getString(R.string.error_incorrect_email));
-                        mEmailView.requestFocus();
-                    }
-                    if(e instanceof FirebaseAuthInvalidCredentialsException)
-                    {
-                        Toast.makeText(LoginActivity.this, "The Password Is Invalid, Please Try Valid Password", Toast.LENGTH_SHORT).show();
-                        mPasswordView.setError(getString(R.string.error_incorrect_password));
-                        mPasswordView.requestFocus();
-                    }
-                    if(e instanceof FirebaseNetworkException)
-                    {
-                        mEmailView.requestFocus();
-                        Toast.makeText(LoginActivity.this, "Please Check Your Connection", Toast.LENGTH_SHORT).show();
-                    }
+                    Dao.defaultFailureTask(LoginActivity.this, call, throwable);
+                }
+            });
+
+            prosses_login.setOnCancelListener(new DialogInterface.OnCancelListener()
+            {
+                @Override public void onCancel(DialogInterface dialog)
+                {
+                    login.cancel();
                 }
             });
         }
     }
 
-    private boolean isEmailValid(String email)
+    private void retrievePersonalAccount()
     {
-        return email.contains("@");
+        Timber.d("retrievePersonalAccount");
+
+        AccountDao.getAccount(this, new Callback<ResponsePojo<AccountPojo>>()
+        {
+            @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<AccountPojo>> call, @NonNull Response<ResponsePojo<AccountPojo>> response)
+            {
+                @NonNull final ResultPojo<AccountPojo> result = response.body().getData();
+                if(result.getStatus() == 0)
+                {
+                    prosses_login.dismissWithAnimation();
+                    Toast.makeText(LoginActivity.this, result.getMessage().getMessage().get(0), Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    AccountDao.storeAccount(LoginActivity.this, result.getResult());
+                    LoginActivity.this.registerFirebaseToken();
+                }
+            }
+
+            @Override public void onFailure(@NonNull Call<ResponsePojo<AccountPojo>> call, @NonNull Throwable throwable)
+            {
+                prosses_login.dismissWithAnimation();
+                Dao.defaultFailureTask(LoginActivity.this, call, throwable);
+            }
+        });
+    }
+
+    private void registerFirebaseToken()
+    {
+        Timber.d("registerFirebaseToken");
+
+        FirebaseDao.registerToken(new FcmTokenPojo(FirebaseInstanceId.getInstance().getToken()), this, new Callback<ResponsePojo<Void>>()
+        {
+            @Override public void onResponse(@NonNull Call<ResponsePojo<Void>> call, @NonNull Response<ResponsePojo<Void>> response)
+            {
+                prosses_login.dismissWithAnimation();
+                Intent masuk = new Intent(LoginActivity.this, Home.class);
+                startActivity(masuk);
+                finish();
+            }
+
+            @Override public void onFailure(@NonNull Call<ResponsePojo<Void>> call, @NonNull Throwable throwable)
+            {
+                prosses_login.dismissWithAnimation();
+                Dao.defaultFailureTask(LoginActivity.this, call, throwable);
+            }
+        });
     }
 
     private boolean isPasswordValid(String password)
     {
-        return password.length() > 8;
+        Timber.d("isPasswordValid");
+
+        return password.length() >= 8;
     }
 }
 
