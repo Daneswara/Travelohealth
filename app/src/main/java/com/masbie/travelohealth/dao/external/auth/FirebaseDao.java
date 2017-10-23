@@ -10,6 +10,7 @@ package com.masbie.travelohealth.dao.external.auth;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.GsonBuilder;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.pojo.auth.FcmTokenPojo;
@@ -47,11 +48,16 @@ public class FirebaseDao
         @NonNull final GsonBuilder builder = new GsonBuilder();
         FcmTokenPojo.inferenceGsonBuilder(builder);
 
-        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, builder, true);
-        @NonNull final FirebaseService firebaseService = retrofit.create(FirebaseService.class);
-        @NonNull final Call<ResponsePojo<Void>> service = firebaseService.registerToken(token);
+        @NonNull final Retrofit                 retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final FirebaseService          firebaseService = retrofit.create(FirebaseService.class);
+        @NonNull final Call<ResponsePojo<Void>> service         = firebaseService.registerToken(token);
         service.enqueue(callback);
 
         return service;
+    }
+
+    public static void subscribe(String topic)
+    {
+        FirebaseMessaging.getInstance().subscribeToTopic(topic);
     }
 }
