@@ -126,4 +126,6 @@
     <string name="shared_prefs_account_id">id</string>
     <string name="shared_prefs_account_username">username</string>
     <string name="shared_prefs_account_identity">identity</string>
+    <string name="splash_screen_title">Travelohealth</string>
+    <string name="title_activity_splash_screen">Travelohelath</string>
 </resources>
