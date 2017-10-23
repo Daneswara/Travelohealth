@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.masbie.travelohealth">
+        xmlns:tools="http://schemas.android.com/tools"
+        package="com.masbie.travelohealth">
 
     <!-- if you want to load images from the internet -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,20 +24,21 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
+            android:name="android.hardware.camera"
+            android:required="true" />
 
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:replace="android:icon">
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:name=".App"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme"
+            tools:replace="android:icon">
         <activity
-            android:name=".Home"
-            android:label="@string/app_name">
+                android:name=".Home"
+                android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,13 +47,13 @@
         </activity>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.masbie.travelohealth.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="com.masbie.travelohealth.fileprovider"
+                android:exported="false"
+                android:grantUriPermissions="true">
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+                    android:name="android.support.FILE_PROVIDER_PATHS"
+                    android:resource="@xml/file_paths" />
         </provider>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -63,51 +64,50 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+                android:name="com.google.android.geo.API_KEY"
+                android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".PesanKamar"
-            android:label="Pesan Kamar"
-            android:theme="@style/AppTheme.NoActionBar">
+                android:name=".PesanKamar"
+                android:label="Pesan Kamar"
+                android:theme="@style/AppTheme.NoActionBar">
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.masbie.travelohealth.Home" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.masbie.travelohealth.Home" />
         </activity>
         <activity
-            android:name=".DetailTransaksi"
-            android:label="@string/title_activity_detail_transaksi" />
+                android:name=".DetailTransaksi"
+                android:label="@string/title_activity_detail_transaksi" />
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
+                android:name=".LoginActivity"
+                android:label="@string/title_activity_login" />
         <activity
-            android:name=".RegisterActivity"
-            android:label="@string/title_activity_register">
+                android:name=".RegisterActivity"
+                android:label="@string/title_activity_register">
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.masbie.travelohealth.LoginActivity" />
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.masbie.travelohealth.LoginActivity" />
         </activity>
-        <service
-            android:name=".MyFirebaseMessagingService">
+
+        <service android:name=".MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".MyFirebaseInstanceIDService">
+        <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
         <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_notifications" />
+                android:name="com.google.firebase.messaging.default_notification_icon"
+                android:resource="@drawable/ic_notifications" />
         <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more. -->
         <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/colorAccent" />
+                android:name="com.google.firebase.messaging.default_notification_color"
+                android:resource="@color/colorAccent" />
 
     </application>
 
