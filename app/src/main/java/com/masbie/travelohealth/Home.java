@@ -33,12 +33,15 @@ import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.TravelMode;
 import com.masbie.travelohealth.dao.TokenDao;
+import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.get.InformationDao;
 import com.masbie.travelohealth.dao.external.personal.AccountDao;
 import com.masbie.travelohealth.object.Antrian;
 import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Kamar;
-import com.masbie.travelohealth.object.Poli;
 import com.masbie.travelohealth.pojo.personal.AccountPojo;
+import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,6 +49,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.joda.time.DateTime;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Home extends AppCompatActivity
 {
@@ -54,7 +60,7 @@ public class Home extends AppCompatActivity
     ListView androidListViewDokter;
     ListView androidListViewKamar;
     ListView androidListView;
-    List<Poli> daftar_poli;
+    List<ServicesDoctorsPojo> daftar_poli;
     List<Dokter> daftar_dokter;
     List<Kamar> daftar_kamar;
     List<Antrian> daftar_antrian;
@@ -202,50 +208,14 @@ public class Home extends AppCompatActivity
 
         androidListViewDokter = findViewById(R.id.custom_listview_dokter);
 
-        androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
 
         androidListViewKamar = findViewById(R.id.custom_listview_kamar);
 
         // ambil data poli
-        daftar_poli = new LinkedList<>();
         daftar_kamar = new LinkedList<>();
         daftar_dokter = new LinkedList<>();
         daftar_antrian = new LinkedList<>();
         new getLokasi().execute();
-        mDatabase.child("poli").addChildEventListener(new ChildEventListener()
-        {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                daftar_poli.add(dataSnapshot.getValue(Poli.class));
-                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
-                androidListViewLayanan.setAdapter(androidListLayanan);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-            {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });
         mDatabase.child("dokter").addChildEventListener(new ChildEventListener()
         {
             @Override
@@ -314,6 +284,61 @@ public class Home extends AppCompatActivity
 
             }
         });
+
+        /*
+        * Layout Service ===========================================================================
+        * */
+        androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
+        daftar_poli = new LinkedList<>();
+        InformationDao.getService(this, new Callback<ResponsePojo<List<ServicesDoctorsPojo>>>()
+        {
+            @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<ServicesDoctorsPojo>>> call, @NonNull Response<ResponsePojo<List<ServicesDoctorsPojo>>> response)
+            {
+                daftar_poli.addAll(response.body().getData().getResult());
+                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
+                androidListViewLayanan.setAdapter(androidListLayanan);
+            }
+
+            @Override public void onFailure(@NonNull Call<ResponsePojo<List<ServicesDoctorsPojo>>> call, @NonNull Throwable throwable)
+            {
+                Dao.defaultFailureTask(Home.this, call, throwable);
+            }
+        });
+
+        /*mDatabase.child("poli").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_poli.add(dataSnapshot.getValue(Poli.class));
+                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
+                androidListViewLayanan.setAdapter(androidListLayanan);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });*/
 
         /*
         * Layout Logout ============================================================================

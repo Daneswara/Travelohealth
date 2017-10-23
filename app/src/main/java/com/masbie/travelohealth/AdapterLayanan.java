@@ -12,20 +12,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.masbie.travelohealth.object.Pesan;
-import com.masbie.travelohealth.object.Poli;
-import java.text.SimpleDateFormat;
+import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.util.Calendar;
 import java.util.List;
 
@@ -36,14 +27,14 @@ import java.util.List;
 public class AdapterLayanan extends ArrayAdapter
 {
     Context context;
-    List<Poli> daftar_poli;
+    List<ServicesDoctorsPojo> daftar_poli;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     BottomNavigationView navigation;
     private LinearLayout fl, f2;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
-    public AdapterLayanan(Activity context, List<Poli> daftar_poli)
+    public AdapterLayanan(Activity context, List<ServicesDoctorsPojo> daftar_poli)
     {
         super(context, R.layout.layout_layanan_listview, daftar_poli);
         mAuth = FirebaseAuth.getInstance();
@@ -67,10 +58,11 @@ public class AdapterLayanan extends ArrayAdapter
         TextView jam = viewRow.findViewById(R.id.jamkerja);
         TextView pesan = viewRow.findViewById(R.id.pesanDokter);
 
-        mtextView.setText(daftar_poli.get(i).pelayanan);
-        jam.setText(daftar_poli.get(i).hari.toUpperCase() + "\n" + daftar_poli.get(i).jamkerja);
-        System.out.println("cek keter" + cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja));
-        if(!cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja))
+        mtextView.setText(daftar_poli.get(i).getName());
+        jam.setText("Setiap Hari" + "\n" + daftar_poli.get(i).getTimeStart() + " " + daftar_poli.get(i).getTimeEnd());
+        //System.out.println("cek keter" + cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja));
+        //if(!cekKetersediaan(daftar_poli.get(i).hari, daftar_poli.get(i).jamkerja))
+        if(false)
         {
             pesan.setText("TUTUP");
             pesan.setBackgroundColor(Color.GRAY);
@@ -81,7 +73,7 @@ public class AdapterLayanan extends ArrayAdapter
                 {
                     new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Layanan TUTUP!")
-                            .setContentText("Anda dapat mencoba lagi ketika layanan " + daftar_poli.get(i).pelayanan + " telah dibuka.")
+                            .setContentText("Anda dapat mencoba lagi ketika layanan " + daftar_poli.get(i).getName() + " telah dibuka.")
                             .show();
                 }
             });
@@ -95,7 +87,7 @@ public class AdapterLayanan extends ArrayAdapter
                 {
                     new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                             .setTitleText("Apa anda yakin?")
-                            .setContentText("Anda akan memesan layanan " + daftar_poli.get(i).pelayanan + "!")
+                            .setContentText("Anda akan memesan layanan " + daftar_poli.get(i).getName() + "!")
                             .setConfirmText("Ya, saya yakin!")
                             .setCancelText("Batal")
                             .showCancelButton(true)
@@ -112,7 +104,7 @@ public class AdapterLayanan extends ArrayAdapter
                                 @Override
                                 public void onClick(final SweetAlertDialog sDialog)
                                 {
-                                    Calendar calendar = Calendar.getInstance();
+                                    /*Calendar calendar = Calendar.getInstance();
                                     String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
                                     mDatabase.child("antrian").child(tanggal).child(daftar_poli.get(i).id).addListenerForSingleValueEvent(new ValueEventListener()
                                     {
@@ -169,7 +161,7 @@ public class AdapterLayanan extends ArrayAdapter
                                                 });
 
                                             }
-                                            FirebaseMessaging.getInstance().subscribeToTopic(daftar_poli.get(i).id);
+                                            //FirebaseMessaging.getInstance().subscribeToTopic(daftar_poli.get(i).id);
                                         }
 
                                         @Override
@@ -177,19 +169,20 @@ public class AdapterLayanan extends ArrayAdapter
                                         {
 
                                         }
-                                    });
+                                    });*/
                                 }
                             })
                             .show();
                 }
             });
         }
-        StorageReference storageRef = storage.getReference().child("images/" + daftar_poli.get(i).gambar);
+        //StorageReference storageRef = storage.getReference().child("images/" + daftar_poli.get(i).gambar);
         ImageView mimageView = viewRow.findViewById(R.id.image_view);
-        Glide.with(context)
+        mimageView.setImageResource(R.drawable.klinikgigi);
+        /*Glide.with(context)
              .using(new FirebaseImageLoader())
              .load(storageRef)
-             .into(mimageView);
+             .into(mimageView);*/
 
 
         return viewRow;
