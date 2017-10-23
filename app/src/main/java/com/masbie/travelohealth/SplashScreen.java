@@ -1,11 +1,25 @@
 package com.masbie.travelohealth;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import com.masbie.travelohealth.dao.TokenDao;
+import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.auth.LoginDao;
+import com.masbie.travelohealth.pojo.auth.TokenPojo;
+import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.response.ResultPojo;
+import java.util.concurrent.CountDownLatch;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import timber.log.Timber;
 
 /**
@@ -68,7 +82,7 @@ public class SplashScreen extends AppCompatActivity
         Timber.d("onPostResume");
         super.onPostResume();
 
-
+        new TokenValidationTask().execute();
     }
 
     @Override protected void onDestroy()
@@ -121,5 +135,86 @@ public class SplashScreen extends AppCompatActivity
 
         this.hideHandler.removeCallbacks(this.hideOperation);
         this.hideHandler.postDelayed(this.hideOperation, delayMillis);
+    }
+
+    private class TokenValidationTask extends AsyncTask<Void, Void, Void>
+    {
+        private CountDownLatch checkLatch;
+        private boolean needLogin = true;
+
+        @Override protected void onPreExecute()
+        {
+            Timber.d("onPreExecute");
+
+            super.onPreExecute();
+            this.checkLatch = new CountDownLatch(1);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids)
+        {
+            Timber.d("doInBackground");
+
+            @Nullable TokenPojo token = TokenDao.retrieveToken(SplashScreen.this);
+
+            if(token == null)
+            {
+                this.checkLatch.countDown();
+            }
+            else
+            {
+                LoginDao.ping(SplashScreen.this, new Callback<ResponsePojo<Void>>()
+                {
+                    @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<Void>> call, @NonNull Response<ResponsePojo<Void>> response)
+                    {
+                        @NonNull final ResultPojo<Void> result = response.body().getData();
+                        if(result.getStatus() == 1)
+                        {
+                            needLogin = false;
+                        }
+                        checkLatch.countDown();
+                    }
+
+                    @Override public void onFailure(@NonNull Call<ResponsePojo<Void>> call, @NonNull Throwable throwable)
+                    {
+                        Dao.defaultFailureTask(SplashScreen.this, call, throwable);
+                        checkLatch.countDown();
+                    }
+                });
+            }
+
+            try
+            {
+                this.checkLatch.await();
+            }
+            catch(InterruptedException e)
+            {
+                Timber.e(e);
+            }
+            return null;
+        }
+
+        @Override protected void onPostExecute(Void aVoid)
+        {
+            Timber.d("onPostExecute");
+            super.onPostExecute(aVoid);
+            new Handler().postDelayed(new Runnable()
+            {
+                public void run()
+                {
+                    @NonNull Intent intent;
+                    if(needLogin)
+                    {
+                        intent = new Intent(SplashScreen.this, LoginActivity.class);
+                    }
+                    else
+                    {
+                        intent = new Intent(SplashScreen.this, Home.class);
+                    }
+                    SplashScreen.super.startActivity(intent);
+                    SplashScreen.super.finish();
+                }
+            }, 2 * 1000);
+        }
     }
 }
