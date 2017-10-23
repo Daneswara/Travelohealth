@@ -45,7 +45,7 @@ public class Setting
     {
         this.networking = new Networking();
 
-        this.networking.setDomain("https://travelohealth.com");
+        this.networking.setDomain("https://travelohealth.000webhostapp.com");
     }
 
     static Setting getInstance()
@@ -86,11 +86,11 @@ public class Setting
                 InputStream is;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                 {
-                    is = context.getResources().openRawResource(R.raw.travelohealth_com_bks);
+                    is = context.getResources().openRawResource(R.raw.travelohealth_000webhostapp_com_bks);
                 }
                 else
                 {
-                    is = context.getResources().openRawResource(R.raw.travelohealth_com_v1_bks);
+                    is = context.getResources().openRawResource(R.raw.travelohealth_000webhostapp_com_v1_bks);
                 }
                 try
                 {
@@ -120,7 +120,7 @@ public class Setting
                     boolean isVerified = false;
                     switch(host)
                     {
-                        case "travelohealth.com":
+                        case "travelohealth.000webhostapp.com":
                         {
                             isVerified = true;
                             break;
