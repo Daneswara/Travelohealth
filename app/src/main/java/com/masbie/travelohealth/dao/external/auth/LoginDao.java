@@ -56,4 +56,34 @@ public class LoginDao
 
         return service;
     }
+
+    public static Call<ResponsePojo<Void>> ping(final @NonNull Context context, @Nullable Callback<ResponsePojo<Void>> callback)
+    {
+        Timber.d("ping");
+
+        if(callback == null)
+        {
+            callback = new Callback<ResponsePojo<Void>>()
+            {
+                @Override public void onResponse(@NonNull Call<ResponsePojo<Void>> call, @NonNull Response<ResponsePojo<Void>> response)
+                {
+                    Dao.defaultSuccessTask(call, response);
+                }
+
+                @Override public void onFailure(@NonNull Call<ResponsePojo<Void>> call, @NonNull Throwable throwable)
+                {
+                    Dao.defaultFailureTask(context, call, throwable);
+                }
+            };
+        }
+
+        @NonNull GsonBuilder gsonBuilder = new GsonBuilder();
+
+        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, gsonBuilder, true);
+        @NonNull final LoginService loginService = retrofit.create(LoginService.class);
+        @NonNull final Call<ResponsePojo<Void>> service = loginService.ping();
+        service.enqueue(callback);
+
+        return service;
+    }
 }
