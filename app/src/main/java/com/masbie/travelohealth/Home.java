@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,7 +36,6 @@ import com.masbie.travelohealth.object.Antrian;
 import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.object.Poli;
-import com.masbie.travelohealth.object.User;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -166,198 +164,183 @@ public class Home extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         sharedpreferences = getSharedPreferences("menu", Context.MODE_PRIVATE);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser == null)
+
+        fl = findViewById(R.id.transaksi);
+        f2 = findViewById(R.id.layanan);
+        f3 = findViewById(R.id.dokter);
+        f4 = findViewById(R.id.kamar);
+        f5 = findViewById(R.id.akun);
+        navigation = findViewById(R.id.navigation);
+        navigation.setItemBackgroundResource(R.color.colorPrimaryDark);
+        navigation.setItemTextColor(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
+        navigation.setItemIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        cek_menu();
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if(ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
-            Intent keluar = new Intent(Home.this, LoginActivity.class);
-            startActivity(keluar);
-            finish();
+        }
+        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if(location == null)
+        {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
         }
         else
         {
-            fl = findViewById(R.id.transaksi);
-            f2 = findViewById(R.id.layanan);
-            f3 = findViewById(R.id.dokter);
-            f4 = findViewById(R.id.kamar);
-            f5 = findViewById(R.id.akun);
-            navigation = findViewById(R.id.navigation);
-            navigation.setItemBackgroundResource(R.color.colorPrimaryDark);
-            navigation.setItemTextColor(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
-            navigation.setItemIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
-            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-            cek_menu();
-
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if(ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            {
-            }
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location == null)
-            {
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
-            }
-            else
-            {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-            }
-
-            androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
-
-
-            androidListViewDokter = findViewById(R.id.custom_listview_dokter);
-
-            androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
-
-            androidListViewKamar = findViewById(R.id.custom_listview_kamar);
-
-            TextView logout = findViewById(R.id.keluar);
-            logout.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    mAuth.signOut();
-                    sharedpreferences.edit().clear();
-                    sharedpreferences.edit().commit();
-                    Intent intent = new Intent(Home.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            });
-
-            // ambil data poli
-            daftar_poli = new LinkedList<>();
-            daftar_kamar = new LinkedList<>();
-            daftar_dokter = new LinkedList<>();
-            daftar_antrian = new LinkedList<>();
-            new getLokasi().execute();
-            mDatabase.child("poli").addChildEventListener(new ChildEventListener()
-            {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                {
-                    daftar_poli.add(dataSnapshot.getValue(Poli.class));
-                    AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
-                    androidListViewLayanan.setAdapter(androidListLayanan);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot)
-                {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError)
-                {
-
-                }
-            });
-            mDatabase.child("dokter").addChildEventListener(new ChildEventListener()
-            {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                {
-                    daftar_dokter.add(dataSnapshot.getValue(Dokter.class));
-                    AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
-                    androidListViewDokter.setAdapter(androidListDokter);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot)
-                {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError)
-                {
-
-                }
-            });
-
-            mDatabase.child("kamar").addChildEventListener(new ChildEventListener()
-            {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                {
-                    daftar_kamar.add(dataSnapshot.getValue(Kamar.class));
-                    AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
-                    androidListViewKamar.setAdapter(androidListKamar);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot)
-                {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s)
-                {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError)
-                {
-
-                }
-            });
-
-
-            mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener()
-            {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot)
-                {
-                    TextView nama = findViewById(R.id.nama_pengguna);
-                    TextView email = findViewById(R.id.email_pengguna);
-                    User user = dataSnapshot.getValue(User.class);
-                    nama.setText(user.name);
-                    email.setText(user.email);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError)
-                {
-
-                }
-            });
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
         }
 
+        androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
 
+        androidListViewDokter = findViewById(R.id.custom_listview_dokter);
+
+        androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
+
+        androidListViewKamar = findViewById(R.id.custom_listview_kamar);
+
+        TextView logout = findViewById(R.id.keluar);
+        logout.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                mAuth.signOut();
+                sharedpreferences.edit().clear();
+                sharedpreferences.edit().commit();
+                Intent intent = new Intent(Home.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        // ambil data poli
+        daftar_poli = new LinkedList<>();
+        daftar_kamar = new LinkedList<>();
+        daftar_dokter = new LinkedList<>();
+        daftar_antrian = new LinkedList<>();
+        new getLokasi().execute();
+        mDatabase.child("poli").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_poli.add(dataSnapshot.getValue(Poli.class));
+                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
+                androidListViewLayanan.setAdapter(androidListLayanan);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        mDatabase.child("dokter").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_dokter.add(dataSnapshot.getValue(Dokter.class));
+                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                androidListViewDokter.setAdapter(androidListDokter);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        mDatabase.child("kamar").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_kamar.add(dataSnapshot.getValue(Kamar.class));
+                AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
+                androidListViewKamar.setAdapter(androidListKamar);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        /*mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                TextView nama = findViewById(R.id.nama_pengguna);
+                TextView email = findViewById(R.id.email_pengguna);
+                User user = dataSnapshot.getValue(User.class);
+                nama.setText(user.name);
+                email.setText(user.email);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });*/
     }
 
     public void cek_menu()
