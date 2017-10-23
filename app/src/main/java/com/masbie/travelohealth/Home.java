@@ -50,7 +50,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements LocationListener {
     //    static {
 //        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 //    }
@@ -164,15 +164,29 @@ public class Home extends AppCompatActivity {
             cek_menu();
 
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
             }
             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (location == null) {
-                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                System.out.println(latitude+" "+longitude);
+                new getLokasi().execute();
             } else {
                 longitude = location.getLongitude();
                 latitude = location.getLatitude();
+                System.out.println(latitude+" "+longitude);
+                new getLokasi().execute();
             }
+
 
             androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
 
@@ -201,7 +215,6 @@ public class Home extends AppCompatActivity {
             daftar_kamar = new LinkedList<>();
             daftar_dokter = new LinkedList<>();
             daftar_antrian = new LinkedList<>();
-            new getLokasi().execute();
             mDatabase.child("poli").addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -387,27 +400,28 @@ public class Home extends AppCompatActivity {
         return geoApiContext.setQueryRateLimit(3).setApiKey(getString(R.string.google_maps_dir_key)).setConnectTimeout(1, TimeUnit.SECONDS).setReadTimeout(1, TimeUnit.SECONDS).setWriteTimeout(1, TimeUnit.SECONDS);
     }
 
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
 
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
 
-        }
+    @Override
+    public void onLocationChanged(Location location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+    }
 
-        @Override
-        public void onProviderEnabled(String s) {
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-        }
+    }
 
-        @Override
-        public void onProviderDisabled(String s) {
+    @Override
+    public void onProviderEnabled(String provider) {
 
-        }
-    };
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 
     class getLokasi extends AsyncTask<String, String, DirectionsResult> {
         /**
