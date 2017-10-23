@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.google.gson.GsonBuilder;
 import com.masbie.travelohealth.R;
 import com.masbie.travelohealth.dao.external.Dao;
@@ -68,5 +69,17 @@ public class AccountDao
         editor.putString(context.getString(R.string.shared_prefs_account_username), account.getUsername());
         editor.putString(context.getString(R.string.shared_prefs_account_identity), account.getIdentity());
         editor.commit();
+    }
+
+    @Nullable public static AccountPojo retrieveAccount(Context context)
+    {
+        Timber.d("retrieveToken");
+
+        final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_account), Context.MODE_PRIVATE);
+        Integer id = sharedPref.getInt(context.getString(R.string.shared_prefs_account_id), 0);
+        final String username = sharedPref.getString(context.getString(R.string.shared_prefs_account_username), null);
+        final String identity = sharedPref.getString(context.getString(R.string.shared_prefs_account_identity), null);
+        id = id == 0 ? null : id;
+        return new AccountPojo(id, username, identity);
     }
 }
