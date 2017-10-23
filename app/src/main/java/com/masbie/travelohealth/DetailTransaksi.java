@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,7 +42,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallback {
+public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallback , LocationListener{
 
     private GoogleMap mMap;
     private static final int overview = 0;
@@ -72,13 +73,28 @@ public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallb
         mMap = googleMap;
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(DetailTransaksi.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(DetailTransaksi.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        return;
         }
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location == null) {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+        //getting GPS status
+        boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        //getting network status
+        boolean isNetworkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if(isGPSEnabled && isNetworkEnabled) {
+            if (location == null) {
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                setupGoogleMapScreenSettings(googleMap);
+                new getLokasi("RSAB Muhammadiyah Malang", TravelMode.DRIVING, googleMap).execute();
+            } else {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+                setupGoogleMapScreenSettings(googleMap);
+                new getLokasi("RSAB Muhammadiyah Malang", TravelMode.DRIVING, googleMap).execute();
+            }
         } else {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
+            Toast.makeText(DetailTransaksi.this, "Try again with GPS and Internet are activated", Toast.LENGTH_SHORT).show();
         }
 
         // Add a marker in Sydney and move the camera
@@ -87,8 +103,7 @@ public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallb
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 //        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
-        setupGoogleMapScreenSettings(googleMap);
-        new getLokasi("RSAB Muhammadiyah Malang",TravelMode.DRIVING, googleMap).execute();
+
     }
 
 
@@ -131,6 +146,27 @@ public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallb
                 .setConnectTimeout(1, TimeUnit.SECONDS)
                 .setReadTimeout(1, TimeUnit.SECONDS)
                 .setWriteTimeout(1, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        longitude = location.getLongitude();
+        latitude = location.getLatitude();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 
     class getLokasi extends AsyncTask<String, String, DirectionsResult> {
@@ -188,25 +224,4 @@ public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallb
 
     }
 
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-
-        }
-    };
 }
