@@ -13,10 +13,14 @@ import com.masbie.travelohealth.pojo.auth.UserLoginPojo;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface LoginService
 {
     @POST("/m/api/patient/auth/login")
     Call<ResponsePojo<TokenPojo>> login(@Body UserLoginPojo service);
+
+    @GET("/m/api/patient/ping")
+    Call<ResponsePojo<Void>> ping();
 }
