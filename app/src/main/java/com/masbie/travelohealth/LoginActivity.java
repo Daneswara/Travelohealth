@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -52,11 +53,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.masbie.travelohealth.Login.Login;
+import com.masbie.travelohealth.api.ApiTravelohealth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -71,6 +80,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
     private static final String TAG = "Login Service";
     SweetAlertDialog prosses_login;
+    private Retrofit retrofit;
+    public static final String BASE_API_URL = "https://travelohealth.000webhostapp.com/m/api/";
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -82,13 +93,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+//    private UserLoginTask mAuthTask = null;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -109,7 +120,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             setContentView(R.layout.activity_login);
             // Set up the login form.
             mEmailView = findViewById(R.id.email);
-            populateAutoComplete();
+//            populateAutoComplete();
 
             mPasswordView = findViewById(R.id.password);
             mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -194,9 +205,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -225,11 +233,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
         }
+//        else if (!isEmailValid(email)) {
+//            mEmailView.setError(getString(R.string.error_invalid_email));
+//            focusView = mEmailView;
+//            cancel = true;
+//        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -246,50 +255,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             prosses_login.show();
 //            mAuthTask = new UserLoginTask(email, password);
 //            mAuthTask.execute((Void) null);
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "signInWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                prosses_login.dismissWithAnimation();
-                                String token = FirebaseInstanceId.getInstance().getToken();
-                                mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
-                                FirebaseMessaging.getInstance().subscribeToTopic("news");
-                                Intent masuk = new Intent(LoginActivity.this, Home.class);
-                                startActivity(masuk);
-                                finish();
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            }
-
-                            // ...
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    //showProgress(false);
-                    prosses_login.dismissWithAnimation();
-                    if (e instanceof FirebaseAuthInvalidUserException) {
-                        Toast.makeText(LoginActivity.this, "This User Not Found , Create A New Account", Toast.LENGTH_SHORT).show();
-                        mEmailView.setError(getString(R.string.error_incorrect_email));
-                        mEmailView.requestFocus();
-                    }
-                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(LoginActivity.this, "The Password Is Invalid, Please Try Valid Password", Toast.LENGTH_SHORT).show();
-                        mPasswordView.setError(getString(R.string.error_incorrect_password));
-                        mPasswordView.requestFocus();
-                    }
-                    if (e instanceof FirebaseNetworkException) {
-                        mEmailView.requestFocus();
-                        Toast.makeText(LoginActivity.this, "Please Check Your Connection", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            initializeRetrofit();
+            postMessage(email, password);
         }
     }
 
@@ -382,7 +349,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+//        mEmailView.setAdapter(adapter);
     }
 
 
@@ -396,61 +363,57 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private void initializeRetrofit(){
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
 
-        private final String mEmail;
-        private final String mPassword;
+    private void postMessage(String identity, String password){
+        HashMap<String, String> params = new HashMap<>();
+        params.put("identity", identity);
+        params.put("password", password);
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+        ApiTravelohealth apiService = retrofit.create(ApiTravelohealth.class);
+        Call<Login> result = apiService.postLogin(params);
+        result.enqueue(new Callback<Login>() {
+            @Override
+            public void onResponse(Call<Login> call, Response<Login> response) {
+                try {
+                    if(response.body()!=null) {
+//                        Toast.makeText(LoginActivity.this, response.body().getData().getMessage().getMessage().get(0), Toast.LENGTH_LONG).show();
+                        if (response.body().getData().getStatus()==1) {
+                            prosses_login.dismissWithAnimation();
+                            SharedPreferences pref = getApplicationContext().getSharedPreferences("login", 0); // 0 - for private mode
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putString("token", response.body().getData().getToken().getToken());
+                            editor.putString("refresh", response.body().getData().getToken().getRefresh());
+                            editor.commit();
+                            Intent intent = new Intent(LoginActivity.this, Home.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            mEmailView.requestFocus();
+                            prosses_login.dismissWithAnimation();
+                            new SweetAlertDialog(LoginActivity.this, SweetAlertDialog.ERROR_TYPE)
+                                    .setTitleText("Login Gagal...")
+                                    .setContentText(response.body().getData().getMessage().getMessage().get(0))
+                                    .show();
+                        }
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
             }
 
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+            @Override
+            public void onFailure(Call<Login> call, Throwable t) {
+                t.printStackTrace();
             }
-        }
+        });
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+
     }
 }
 
