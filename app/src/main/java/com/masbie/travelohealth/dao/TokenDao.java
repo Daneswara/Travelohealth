@@ -16,7 +16,7 @@ import com.masbie.travelohealth.R;
 import com.masbie.travelohealth.pojo.auth.TokenPojo;
 import timber.log.Timber;
 
-public class TokenDao
+@SuppressLint("ApplySharedPref") public class TokenDao
 {
     @Nullable public static TokenPojo retrieveToken(Context context)
     {
@@ -28,7 +28,7 @@ public class TokenDao
         return token != null ? new TokenPojo(token, refresh) : null;
     }
 
-    @SuppressLint("ApplySharedPref") public static void storeToken(Context context, TokenPojo tokenPojo)
+    public static void storeToken(Context context, TokenPojo tokenPojo)
     {
         Timber.d("storeToken");
 
@@ -36,6 +36,14 @@ public class TokenDao
         final SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(context.getString(R.string.shared_prefs_token_token), tokenPojo.getToken());
         editor.putString(context.getString(R.string.shared_prefs_token_refresh), tokenPojo.getRefresh());
+        editor.commit();
+    }
+
+    public static void clear(Context context)
+    {
+        final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
         editor.commit();
     }
 }
