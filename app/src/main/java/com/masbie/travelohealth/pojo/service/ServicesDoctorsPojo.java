@@ -8,11 +8,11 @@ package com.masbie.travelohealth.pojo.service;
  * Github       : syafiqq
  */
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalTime;
 
 public class ServicesDoctorsPojo extends ServicePojo
@@ -31,7 +31,7 @@ public class ServicesDoctorsPojo extends ServicePojo
         this.doctors = doctors;
     }
 
-    public static void inferenceGsonBuilder(@NotNull GsonBuilder builder)
+    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServicePojo.inferenceGsonBuilder(builder);
         DoctorPojo.inferenceGsonBuilder(builder);

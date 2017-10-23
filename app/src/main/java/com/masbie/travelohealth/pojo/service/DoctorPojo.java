@@ -8,12 +8,12 @@ package com.masbie.travelohealth.pojo.service;
  * Github       : syafiqq
  */
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.masbie.travelohealth.custom.gson.deserialization.JodaLocalTimeDeserialization;
 import com.masbie.travelohealth.custom.gson.serialization.JodaLocalTimeSerialization;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalTime;
 
 public class DoctorPojo
@@ -39,7 +39,7 @@ public class DoctorPojo
         this.timeEnd = timeEnd;
     }
 
-    public static void inferenceGsonBuilder(@NotNull GsonBuilder builder)
+    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeSerialization());
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeDeserialization());

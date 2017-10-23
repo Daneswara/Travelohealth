@@ -8,12 +8,12 @@ package com.masbie.travelohealth.custom.gson.deserialization;
  * Github       : syafiqq
  */
 
+import android.support.annotation.NonNull;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -22,7 +22,7 @@ public class JodaLocalDateDeserialization implements JsonDeserializer<LocalDate>
 {
     @Override public LocalDate deserialize(JsonElement src, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException
     {
-        final @NotNull DateTimeFormatter format = DateTimeFormat.forPattern("YYYY-MM-dd");
+        final @NonNull DateTimeFormatter format = DateTimeFormat.forPattern("YYYY-MM-dd");
         return format.parseLocalDate(src.getAsJsonPrimitive().getAsString());
     }
 }
