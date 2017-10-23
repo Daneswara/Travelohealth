@@ -32,10 +32,13 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.TravelMode;
+import com.masbie.travelohealth.dao.TokenDao;
+import com.masbie.travelohealth.dao.external.personal.AccountDao;
 import com.masbie.travelohealth.object.Antrian;
 import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.object.Poli;
+import com.masbie.travelohealth.pojo.personal.AccountPojo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -155,12 +158,15 @@ public class Home extends AppCompatActivity
         }
 
     };
+    private AccountPojo account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        this.account = AccountDao.retrieveAccount(this);
+
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         sharedpreferences = getSharedPreferences("menu", Context.MODE_PRIVATE);
@@ -199,21 +205,6 @@ public class Home extends AppCompatActivity
         androidListViewLayanan = findViewById(R.id.custom_listview_layanan);
 
         androidListViewKamar = findViewById(R.id.custom_listview_kamar);
-
-        TextView logout = findViewById(R.id.keluar);
-        logout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                mAuth.signOut();
-                sharedpreferences.edit().clear();
-                sharedpreferences.edit().commit();
-                Intent intent = new Intent(Home.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
 
         // ambil data poli
         daftar_poli = new LinkedList<>();
@@ -323,24 +314,26 @@ public class Home extends AppCompatActivity
 
             }
         });
-        /*mDatabase.child("users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener()
+
+        /*
+        * Layout Logout ============================================================================
+        * */
+        TextView nama = findViewById(R.id.nama_pengguna);
+        TextView email = findViewById(R.id.email_pengguna);
+        nama.setText(this.account.getUsername());
+        email.setText(this.account.getIdentity());
+        View logout = findViewById(R.id.keluar);
+        logout.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
+            public void onClick(View v)
             {
-                TextView nama = findViewById(R.id.nama_pengguna);
-                TextView email = findViewById(R.id.email_pengguna);
-                User user = dataSnapshot.getValue(User.class);
-                nama.setText(user.name);
-                email.setText(user.email);
+                TokenDao.clear(Home.this);
+                Intent intent = new Intent(Home.this, SplashScreen.class);
+                startActivity(intent);
+                finish();
             }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });*/
+        });
     }
 
     public void cek_menu()
