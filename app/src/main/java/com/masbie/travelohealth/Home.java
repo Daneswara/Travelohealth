@@ -37,10 +37,10 @@ import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.dao.external.get.InformationDao;
 import com.masbie.travelohealth.dao.external.personal.AccountDao;
 import com.masbie.travelohealth.object.Antrian;
-import com.masbie.travelohealth.object.Dokter;
 import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.pojo.personal.AccountPojo;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
 import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -55,17 +55,17 @@ import retrofit2.Response;
 
 public class Home extends AppCompatActivity
 {
-    SharedPreferences sharedpreferences;
-    ListView androidListViewLayanan;
-    ListView androidListViewDokter;
-    ListView androidListViewKamar;
-    ListView androidListView;
+    SharedPreferences         sharedpreferences;
+    ListView                  androidListViewLayanan;
+    ListView                  androidListViewDokter;
+    ListView                  androidListViewKamar;
+    ListView                  androidListView;
     List<ServicesDoctorsPojo> daftar_poli;
-    List<Dokter> daftar_dokter;
-    List<Kamar> daftar_kamar;
-    List<Antrian> daftar_antrian;
-    DirectionsResult result;
-    double longitude, latitude;
+    List<DoctorsServicesPojo> daftar_dokter;
+    List<Kamar>               daftar_kamar;
+    List<Antrian>             daftar_antrian;
+    DirectionsResult          result;
+    double                    longitude, latitude;
     private final LocationListener locationListener = new LocationListener()
     {
         public void onLocationChanged(Location location)
@@ -97,7 +97,7 @@ public class Home extends AppCompatActivity
     //        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     //    }
     private LinearLayout fl, f2, f3, f4, f5;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth      mAuth;
     private DatabaseReference mDatabase;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener()
@@ -205,51 +205,12 @@ public class Home extends AppCompatActivity
         }
 
         androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
-
-        androidListViewDokter = findViewById(R.id.custom_listview_dokter);
-
-
         androidListViewKamar = findViewById(R.id.custom_listview_kamar);
 
         // ambil data poli
         daftar_kamar = new LinkedList<>();
-        daftar_dokter = new LinkedList<>();
         daftar_antrian = new LinkedList<>();
         new getLokasi().execute();
-        mDatabase.child("dokter").addChildEventListener(new ChildEventListener()
-        {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                daftar_dokter.add(dataSnapshot.getValue(Dokter.class));
-                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
-                androidListViewDokter.setAdapter(androidListDokter);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-            {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });
         mDatabase.child("kamar").addChildEventListener(new ChildEventListener()
         {
             @Override
@@ -304,7 +265,6 @@ public class Home extends AppCompatActivity
                 Dao.defaultFailureTask(Home.this, call, throwable);
             }
         });
-
         /*mDatabase.child("poli").addChildEventListener(new ChildEventListener()
         {
             @Override
@@ -341,9 +301,63 @@ public class Home extends AppCompatActivity
         });*/
 
         /*
+        * Layout Doctor ============================================================================
+        * */
+        androidListViewDokter = findViewById(R.id.custom_listview_dokter);
+        daftar_dokter = new LinkedList<>();
+        InformationDao.getDoctor(this, new Callback<ResponsePojo<List<DoctorsServicesPojo>>>()
+        {
+            @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Response<ResponsePojo<List<DoctorsServicesPojo>>> response)
+            {
+                daftar_dokter.addAll(response.body().getData().getResult());
+                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                androidListViewDokter.setAdapter(androidListDokter);
+            }
+
+            @Override public void onFailure(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Throwable throwable)
+            {
+                Dao.defaultFailureTask(Home.this, call, throwable);
+            }
+        });
+        /*mDatabase.child("dokter").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_dokter.add(dataSnapshot.getValue(Dokter.class));
+                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                androidListViewDokter.setAdapter(androidListDokter);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });*/
+
+        /*
         * Layout Logout ============================================================================
         * */
-        TextView nama = findViewById(R.id.nama_pengguna);
+        TextView nama  = findViewById(R.id.nama_pengguna);
         TextView email = findViewById(R.id.email_pengguna);
         nama.setText(this.account.getUsername());
         email.setText(this.account.getIdentity());
@@ -363,8 +377,8 @@ public class Home extends AppCompatActivity
 
     public void cek_menu()
     {
-        int menunya = sharedpreferences.getInt("menu", 0);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
+        int                      menunya = sharedpreferences.getInt("menu", 0);
+        SharedPreferences.Editor editor  = sharedpreferences.edit();
         if(menunya == 0)
         {
             editor.putInt("menu", 1);
@@ -510,8 +524,8 @@ public class Home extends AppCompatActivity
         protected void onPostExecute(final DirectionsResult result)
         {
             super.onPostExecute(result);
-            Calendar calendar = Calendar.getInstance();
-            final String tanggal = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
+            Calendar     calendar = Calendar.getInstance();
+            final String tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
             if(result != null)
             {
                 mDatabase.child("antrian").child(tanggal).addChildEventListener(new ChildEventListener()
