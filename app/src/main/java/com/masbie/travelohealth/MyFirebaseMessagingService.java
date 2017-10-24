@@ -17,8 +17,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService
 {
-    private static final String TAG = "MyFirebaseMsgService";
-    static int notifId = -1;
+    private static final String TAG     = "MyFirebaseMsgService";
+    static               int    notifId = -1;
 
     /**
      * Called when message is received.

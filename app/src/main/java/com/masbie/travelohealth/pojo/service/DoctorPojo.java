@@ -19,9 +19,9 @@ import org.joda.time.LocalTime;
 public class DoctorPojo
 {
     @SerializedName("id")
-    @Nullable Integer id;
+    @Nullable Integer   id;
     @SerializedName(value = "username", alternate = {"name"})
-    @Nullable String name;
+    @Nullable String    name;
     @SerializedName("start")
     @Nullable LocalTime timeStart;
     @SerializedName("end")

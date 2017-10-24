@@ -82,6 +82,9 @@ import retrofit2.Response;
         final ImageView           mimageView     = viewRow.findViewById(R.id.image_view);
         final DoctorsServicesPojo dokter         = daftar_dokter.get(i);
 
+        /*
+        * Content Initialization====================================================================
+        * */
         mtextView.setText(dokter.getName());
         if(dokter.getServices().size() > 0)
         {

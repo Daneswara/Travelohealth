@@ -11,8 +11,8 @@ public class Pesan
 {
 
     public String id_pemesanan;
-    public long no_antrian;
-    public long pelayanan;
+    public long   no_antrian;
+    public long   pelayanan;
     public String status;
     public String uid_pasien;
     public String gambar;

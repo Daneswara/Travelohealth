@@ -37,10 +37,11 @@ import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.dao.external.get.InformationDao;
 import com.masbie.travelohealth.dao.external.personal.AccountDao;
 import com.masbie.travelohealth.object.Antrian;
-import com.masbie.travelohealth.object.Kamar;
 import com.masbie.travelohealth.pojo.personal.AccountPojo;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.DetailedRoomClassPojo;
 import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
+import com.masbie.travelohealth.pojo.service.RoomSectorPojo;
 import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -55,17 +56,17 @@ import retrofit2.Response;
 
 public class Home extends AppCompatActivity
 {
-    SharedPreferences         sharedpreferences;
-    ListView                  androidListViewLayanan;
-    ListView                  androidListViewDokter;
-    ListView                  androidListViewKamar;
-    ListView                  androidListView;
-    List<ServicesDoctorsPojo> daftar_poli;
-    List<DoctorsServicesPojo> daftar_dokter;
-    List<Kamar>               daftar_kamar;
-    List<Antrian>             daftar_antrian;
-    DirectionsResult          result;
-    double                    longitude, latitude;
+    SharedPreferences                           sharedpreferences;
+    ListView                                    androidListViewLayanan;
+    ListView                                    androidListViewDokter;
+    ListView                                    androidListViewKamar;
+    ListView                                    androidListView;
+    List<ServicesDoctorsPojo>                   daftar_poli;
+    List<DoctorsServicesPojo>                   daftar_dokter;
+    List<RoomSectorPojo<DetailedRoomClassPojo>> daftar_kamar;
+    List<Antrian>                               daftar_antrian;
+    DirectionsResult                            result;
+    double                                      longitude, latitude;
     private final LocationListener locationListener = new LocationListener()
     {
         public void onLocationChanged(Location location)
@@ -205,46 +206,10 @@ public class Home extends AppCompatActivity
         }
 
         androidListView = findViewById(R.id.custom_listview_transaksi_sekarang);
-        androidListViewKamar = findViewById(R.id.custom_listview_kamar);
 
         // ambil data poli
-        daftar_kamar = new LinkedList<>();
         daftar_antrian = new LinkedList<>();
         new getLokasi().execute();
-        mDatabase.child("kamar").addChildEventListener(new ChildEventListener()
-        {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                daftar_kamar.add(dataSnapshot.getValue(Kamar.class));
-                AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
-                androidListViewKamar.setAdapter(androidListKamar);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-            {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s)
-            {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
-            }
-        });
 
         /*
         * Layout Service ===========================================================================
@@ -353,6 +318,61 @@ public class Home extends AppCompatActivity
 
             }
         });*/
+
+        /*
+        * Layout Room ==============================================================================
+        * */
+        androidListViewKamar = findViewById(R.id.custom_listview_kamar);
+        daftar_kamar = new LinkedList<>();
+        InformationDao.getRoom(this, new Callback<ResponsePojo<List<RoomSectorPojo<DetailedRoomClassPojo>>>>()
+        {
+            @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<RoomSectorPojo<DetailedRoomClassPojo>>>> call, @NonNull Response<ResponsePojo<List<RoomSectorPojo<DetailedRoomClassPojo>>>> response)
+            {
+                daftar_kamar.addAll(response.body().getData().getResult());
+                AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
+                androidListViewKamar.setAdapter(androidListKamar);
+            }
+
+            @Override public void onFailure(@NonNull Call<ResponsePojo<List<RoomSectorPojo<DetailedRoomClassPojo>>>> call, @NonNull Throwable throwable)
+            {
+                Dao.defaultFailureTask(Home.this, call, throwable);
+            }
+        });
+        /*mDatabase.child("kamar").addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                daftar_kamar.add(dataSnapshot.getValue(Kamar.class));
+                AdapterKamar androidListKamar = new AdapterKamar(Home.this, daftar_kamar);
+                androidListViewKamar.setAdapter(androidListKamar);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });*/
+
 
         /*
         * Layout Logout ============================================================================

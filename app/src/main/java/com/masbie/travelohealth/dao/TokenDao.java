@@ -23,8 +23,8 @@ import timber.log.Timber;
         Timber.d("retrieveToken");
 
         final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
-        final String token = sharedPref.getString(context.getString(R.string.shared_prefs_token_token), null);
-        final String refresh = sharedPref.getString(context.getString(R.string.shared_prefs_token_refresh), null);
+        final String            token      = sharedPref.getString(context.getString(R.string.shared_prefs_token_token), null);
+        final String            refresh    = sharedPref.getString(context.getString(R.string.shared_prefs_token_refresh), null);
         return token != null ? new TokenPojo(token, refresh) : null;
     }
 
@@ -32,8 +32,8 @@ import timber.log.Timber;
     {
         Timber.d("storeToken");
 
-        final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
+        final SharedPreferences        sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor     = sharedPref.edit();
         editor.putString(context.getString(R.string.shared_prefs_token_token), tokenPojo.getToken());
         editor.putString(context.getString(R.string.shared_prefs_token_refresh), tokenPojo.getRefresh());
         editor.commit();
@@ -41,8 +41,8 @@ import timber.log.Timber;
 
     public static void clear(Context context)
     {
-        final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
+        final SharedPreferences        sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_token), Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor     = sharedPref.edit();
         editor.clear();
         editor.commit();
     }

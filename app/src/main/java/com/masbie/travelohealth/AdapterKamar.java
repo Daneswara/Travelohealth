@@ -11,11 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.masbie.travelohealth.object.Kamar;
+import com.masbie.travelohealth.pojo.service.DetailedRoomClassPojo;
+import com.masbie.travelohealth.pojo.service.RoomSectorPojo;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -24,86 +22,95 @@ import java.util.Locale;
  * Created by Daneswara Jauhari on 06/08/2017.
  */
 
-public class AdapterKamar extends ArrayAdapter
+public class AdapterKamar extends ArrayAdapter<RoomSectorPojo<DetailedRoomClassPojo>>
 {
-    List<Kamar> daftar_kamar;
-    Context context;
+    private List<RoomSectorPojo<DetailedRoomClassPojo>> daftar_kamar;
+    private Context                                     context;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
 
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-
-    public AdapterKamar(Activity context, List<Kamar> daftar_kamar)
+    public AdapterKamar(Activity context, List<RoomSectorPojo<DetailedRoomClassPojo>> daftar_kamar)
     {
         super(context, R.layout.layout_kamar_listview, daftar_kamar);
         this.daftar_kamar = daftar_kamar;
         this.context = context;
     }
 
-    @Override
+    @SuppressWarnings("ConstantConditions") @Override
     public View getView(final int i, View view, ViewGroup viewGroup)
     {
-        LayoutInflater layoutInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View viewRow = layoutInflater.inflate(R.layout.layout_kamar_listview, null,
-                true);
-        TextView mtextView = viewRow.findViewById(R.id.kelaskamar);
-        TextView harga = viewRow.findViewById(R.id.harga);
-        TextView fasilitas = viewRow.findViewById(R.id.fasilitas);
-        TextView pesan = viewRow.findViewById(R.id.pesanDokter);
-        Locale locale = new Locale("id", "ID");
-        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(locale);
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
 
-        harga.setText(currencyFormatter.format(daftar_kamar.get(i).harga) + "/hari");
-        fasilitas.setText(daftar_kamar.get(i).fasilitas);
-        mtextView.setText(daftar_kamar.get(i).kelas);
+        /*
+        * Layout Initialization====================================================================
+        * */
+        final LayoutInflater                        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View                                  viewRow        = layoutInflater.inflate(R.layout.layout_kamar_listview, null, true);
+        final TextView                              mtextView      = viewRow.findViewById(R.id.kelaskamar);
+        final TextView                              harga          = viewRow.findViewById(R.id.harga);
+        final TextView                              fasilitas      = viewRow.findViewById(R.id.fasilitas);
+        final TextView                              pesan          = viewRow.findViewById(R.id.pesanDokter);
+        final ImageView                             mimageView     = viewRow.findViewById(R.id.image_view);
+        final RoomSectorPojo<DetailedRoomClassPojo> kamar          = daftar_kamar.get(i);
 
-        StorageReference storageRef = storage.getReference().child("images/" + daftar_kamar.get(i).gambar);
-        ImageView mimageView = viewRow.findViewById(R.id.image_view);
-        Glide.with(context)
-             .using(new FirebaseImageLoader())
-             .load(storageRef)
-             .into(mimageView);
-
-        if(daftar_kamar.get(i).kapasitas > daftar_kamar.get(i).terisi)
+        /*
+        * Content Initialization====================================================================
+        * */
+        if(kamar.getClasses().size() > 0)
         {
-            pesan.setOnClickListener(new View.OnClickListener()
+            final DetailedRoomClassPojo kamarClass = kamar.getClasses().get(0);
+            harga.setText(currencyFormatter.format(kamarClass.getCost()) + "/hari");
+            fasilitas.setText(kamarClass.getFeature());
+            mtextView.setText(kamar.getName() + " - " + kamarClass.getName());
+            mimageView.setImageResource(R.drawable.vip1);
+
+/*            StorageReference storageRef = storage.getReference().child("images/" + kamarClass.gambar);
+            Glide.with(context)
+                 .using(new FirebaseImageLoader())
+                 .load(storageRef)
+                 .into(mimageView);*/
+
+            if(kamarClass.getReady() > 0)
             {
-                @Override
-                public void onClick(View v)
+                pesan.setOnClickListener(new View.OnClickListener()
                 {
-                    Intent intent = new Intent(context, PesanKamar.class);
-                    intent.putExtra("gambar", daftar_kamar.get(i).gambar);
-                    intent.putExtra("id_kamar", daftar_kamar.get(i).id);
-                    intent.putExtra("kelas", daftar_kamar.get(i).kelas);
-                    intent.putExtra("harga", daftar_kamar.get(i).harga);
-                    context.startActivity(intent);
-                }
-            });
-        }
-        else
-        {
-            pesan.setText("PENUH");
-            pesan.setBackgroundColor(Color.GRAY);
-            pesan.setOnClickListener(new View.OnClickListener()
+                    @Override
+                    public void onClick(View v)
+                    {
+                        Intent intent = new Intent(context, PesanKamar.class);
+                        intent.putExtra("gambar", kamarClass.getPreview());
+                        intent.putExtra("id_kamar", kamarClass.getId());
+                        intent.putExtra("kelas", kamarClass.getName());
+                        intent.putExtra("harga", kamarClass.getCost());
+                        context.startActivity(intent);
+                    }
+                });
+            }
+            else
             {
-                @Override
-                public void onClick(View view)
+                pesan.setText("PENUH");
+                pesan.setBackgroundColor(Color.GRAY);
+                pesan.setOnClickListener(new View.OnClickListener()
                 {
-                    new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-                            .setTitleText("Mohon maaf!")
-                            .setContentText("Kamar " + daftar_kamar.get(i).kelas + " sudah penuh.")
-                            .setConfirmText("OK")
-                            .showCancelButton(false)
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                            {
-                                @Override
-                                public void onClick(SweetAlertDialog sweetAlertDialog)
+                    @Override
+                    public void onClick(View view)
+                    {
+                        new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                                .setTitleText("Mohon maaf!")
+                                .setContentText("Kamar " + kamar.getName() + " - " + kamarClass.getName() + " sudah penuh.")
+                                .setConfirmText("OK")
+                                .showCancelButton(false)
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
                                 {
-                                    sweetAlertDialog.dismissWithAnimation();
-                                }
-                            })
-                            .show();
-                }
-            });
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog)
+                                    {
+                                        sweetAlertDialog.dismissWithAnimation();
+                                    }
+                                })
+                                .show();
+                    }
+                });
+            }
         }
 
 

@@ -14,7 +14,7 @@ public class ValidasiKamar
     public String id_kamar;
     public String tanggal;
     public String kelas;
-    public long harga;
+    public long   harga;
 
     public ValidasiKamar()
     {

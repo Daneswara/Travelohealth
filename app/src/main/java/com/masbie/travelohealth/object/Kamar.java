@@ -14,9 +14,9 @@ public class Kamar
     public String id;
     public String fasilitas;
     public String kelas;
-    public long harga;
-    public long kapasitas;
-    public long terisi;
+    public long   harga;
+    public long   kapasitas;
+    public long   terisi;
 
     public Kamar()
     {

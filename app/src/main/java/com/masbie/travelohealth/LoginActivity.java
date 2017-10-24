@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText             mPasswordView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -107,11 +107,11 @@ public class LoginActivity extends AppCompatActivity
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String email    = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
+        boolean cancel    = false;
+        View    focusView = null;
 
         // Check for a valid password, if the user entered one.
         if(TextUtils.isEmpty(password))

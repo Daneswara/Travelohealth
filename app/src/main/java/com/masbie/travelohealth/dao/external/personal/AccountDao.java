@@ -51,9 +51,9 @@ public class AccountDao
         @NonNull final GsonBuilder gsonBuilder = new GsonBuilder();
         AccountPojo.inferenceGsonBuilder(gsonBuilder);
 
-        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, gsonBuilder, true);
-        @NonNull final AccountService accountService = retrofit.create(AccountService.class);
-        @NonNull final Call<ResponsePojo<AccountPojo>> service = accountService.getAccount();
+        @NonNull final Retrofit                        retrofit       = Setting.Networking.createDefaultConnection(context, gsonBuilder, true);
+        @NonNull final AccountService                  accountService = retrofit.create(AccountService.class);
+        @NonNull final Call<ResponsePojo<AccountPojo>> service        = accountService.getAccount();
         service.enqueue(callback);
 
         return service;
@@ -63,8 +63,8 @@ public class AccountDao
     {
         Timber.d("storeAccount");
 
-        final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_account), Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
+        final SharedPreferences        sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_account), Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor     = sharedPref.edit();
         editor.putInt(context.getString(R.string.shared_prefs_account_id), account.getId() == null ? 0 : account.getId());
         editor.putString(context.getString(R.string.shared_prefs_account_username), account.getUsername());
         editor.putString(context.getString(R.string.shared_prefs_account_identity), account.getIdentity());
@@ -76,9 +76,9 @@ public class AccountDao
         Timber.d("retrieveToken");
 
         final SharedPreferences sharedPref = context.getSharedPreferences(context.getString(R.string.shared_prefs_account), Context.MODE_PRIVATE);
-        Integer id = sharedPref.getInt(context.getString(R.string.shared_prefs_account_id), 0);
-        final String username = sharedPref.getString(context.getString(R.string.shared_prefs_account_username), null);
-        final String identity = sharedPref.getString(context.getString(R.string.shared_prefs_account_identity), null);
+        Integer                 id         = sharedPref.getInt(context.getString(R.string.shared_prefs_account_id), 0);
+        final String            username   = sharedPref.getString(context.getString(R.string.shared_prefs_account_username), null);
+        final String            identity   = sharedPref.getString(context.getString(R.string.shared_prefs_account_identity), null);
         id = id == 0 ? null : id;
         return new AccountPojo(id, username, identity);
     }

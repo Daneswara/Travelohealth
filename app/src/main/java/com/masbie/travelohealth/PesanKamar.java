@@ -18,41 +18,51 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.masbie.travelohealth.object.ValidasiKamar;
+import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.request.RegisterDao;
+import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.TimeZone;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PesanKamar extends AppCompatActivity implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener
 {
     private static final int REQUEST_IMAGE_CAPTURE = 0x01;
-    Button tanggal;
-    Button upload;
-    ImageView gambar;
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    Bitmap imageBitmap = null;
-    File gambarUpload;
-    private String photoTaken;
+    private Button    tanggal;
+    private Button    upload;
+    private ImageView gambar;
+
+    private File              gambarUpload;
+    private String            photoTaken;
     private DatabaseReference mDatabase;
-    private SweetAlertDialog proses_kirim;
-    private String tanggalpilihan = null;
+    private SweetAlertDialog  proses_kirim;
+    private FirebaseStorage   storage        = FirebaseStorage.getInstance();
+    private Bitmap            imageBitmap    = null;
+    private LocalDate         tanggalpilihan = null;
+    private DateTimeFormatter hms            = DateTimeFormat.forPattern("HH:mm:ss");
+    private DateTimeFormatter ymd            = DateTimeFormat.forPattern("YYYY-MM-dd");
+    private Random            random         = new Random();
+    private DateTimeZone      zone           = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -62,12 +72,12 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         Toolbar toolbar = findViewById(R.id.toolbar);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        String getGambar = getIntent().getExtras().getString("gambar", null);
-        final String getKamar = getIntent().getExtras().getString("id_kamar", null);
-        final String getKelas = getIntent().getExtras().getString("kelas", null);
-        final long getHarga = getIntent().getExtras().getLong("harga", 0);
+        final String  getGambar = getIntent().getExtras().getString("gambar", null);
+        final Integer getKamar  = getIntent().getExtras().getInt("id_kamar", 0);
+        final String  getKelas  = getIntent().getExtras().getString("kelas", null);
+        final double  getHarga  = getIntent().getExtras().getDouble("harga", 0);
 
-        if(getGambar == null || getKamar == null || getKelas == null || getHarga == 0)
+        if(getKamar == 0)
         {
             finish();
         }
@@ -75,11 +85,12 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         {
             toolbar.setTitle("Pesan Kamar " + getKelas);
             ImageView toolbar_layout = findViewById(R.id.image_toolbar);
-            StorageReference storageRef = storage.getReference().child("images/" + getGambar);
+            toolbar_layout.setImageResource(R.drawable.vip1);
+            /*StorageReference storageRef     = storage.getReference().child("images/" + getGambar);
             Glide.with(this)
                  .using(new FirebaseImageLoader())
                  .load(storageRef)
-                 .into(toolbar_layout);
+                 .into(toolbar_layout);*/
 
             FloatingActionButton fab = findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener()
@@ -129,23 +140,58 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                         proses_kirim.setTitleText("Loading");
                                         proses_kirim.setCancelable(false);
                                         proses_kirim.show();
-                                        Calendar calendar = Calendar.getInstance();
-                                        StorageReference storageRef = storage.getReference();
-                                        final long time = calendar.getTimeInMillis();
-                                        StorageReference ImagesRef = storageRef.child("surat-rujukan/SR - " + time + ".jpg");
+                                        // Calendar         calendar   = Calendar.getInstance();
+                                        //StorageReference storageRef = storage.getReference();
+                                        //StorageReference ImagesRef  = storageRef.child("surat-rujukan/SR - " + time + ".jpg");
+                                        //final long       time       = calendar.getTimeInMillis();
 
-                                        InputStream stream = null;
+                                        //InputStream stream = null;
                                         if(gambarUpload != null)
                                         {
-                                            try
+                                            Integer         room     = getKamar;
+                                            LocalDate       tanggal  = tanggalpilihan;
+                                            RoomRequestPojo selected = new RoomRequestPojo(room, tanggal);
+                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueSummaryPojo>>()
+                                            {
+                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Response<ResponsePojo<RoomQueueSummaryPojo>> response)
+                                                {
+                                                    RoomQueueSummaryPojo queue = response.body().getData().getResult();
+                                                    //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
+                                                    //Implementasi ini hampir sama dengan Queue Service
+                                                    //FirebaseDao.subscribe(String.format(Locale.getDefault(), "room-%s", queue.getOrder().toString(ymd)));
+                                                    proses_kirim.dismissWithAnimation();
+                                                    sDialog
+                                                            .setTitleText("Berhasil!")
+                                                            .setContentText("Tunggu konfirmasi dari operator!")
+                                                            .setConfirmText("OK")
+                                                            .showCancelButton(false)
+                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                                            {
+                                                                @Override
+                                                                public void onClick(SweetAlertDialog sweetAlertDialog)
+                                                                {
+                                                                    Intent intent = new Intent(PesanKamar.this, Home.class);
+                                                                    startActivity(intent);
+                                                                    finish();
+                                                                }
+                                                            })
+                                                            .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                                                }
+
+                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Throwable throwable)
+                                                {
+                                                    Dao.defaultFailureTask(PesanKamar.this, call, throwable);
+                                                }
+                                            });
+                                            /*try
                                             {
                                                 stream = new FileInputStream(gambarUpload);
                                             }
                                             catch(FileNotFoundException e)
                                             {
                                                 e.printStackTrace();
-                                            }
-                                            UploadTask uploadTask = ImagesRef.putStream(stream);
+                                            }*/
+                                            /*UploadTask uploadTask = ImagesRef.putStream(stream);
                                             uploadTask.addOnFailureListener(new OnFailureListener()
                                             {
                                                 @Override
@@ -194,7 +240,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             })
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
-                                            });
+                                            });*/
                                         }
                                         else
                                         {
@@ -270,7 +316,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                     photoTaken = photoFile.getName().toString();
                     if(photoFile != null)
                     {
-                        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.masbie.travelohealth.fileprovider", photoFile);
+                        Uri               uri                      = FileProvider.getUriForFile(getApplicationContext(), "com.masbie.travelohealth.fileprovider", photoFile);
                         List<ResolveInfo> resolvedIntentActivities = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
                         for(ResolveInfo resolvedIntentInfo : resolvedIntentActivities)
                         {
@@ -331,8 +377,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth)
     {
-        String date = String.format("%02d", dayOfMonth) + "-" + String.format("%02d", (monthOfYear + 1)) + "-" + year;
-        tanggal.setText("Tanggal Pesan: " + date);
-        tanggalpilihan = date;
+        tanggalpilihan = ymd.parseDateTime(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)).toLocalDate();
+        tanggal.setText("Tanggal Pesan: " + tanggalpilihan.toString(ymd));
     }
 }

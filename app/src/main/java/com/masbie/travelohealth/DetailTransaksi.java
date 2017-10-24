@@ -165,9 +165,9 @@ public class DetailTransaksi extends FragmentActivity implements OnMapReadyCallb
         /**
          * Before starting background thread Show Progress Dialog
          */
-        String destination;
+        String     destination;
         TravelMode mode;
-        GoogleMap googleMap;
+        GoogleMap  googleMap;
 
         public getLokasi(String destination, TravelMode mode, GoogleMap googleMap)
         {

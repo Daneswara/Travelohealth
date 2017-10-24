@@ -83,7 +83,7 @@ import retrofit2.Response;
         final ServicesDoctorsPojo poli           = daftar_poli.get(i);
 
         /*
-        * Layout Initialization====================================================================
+        * Content Initialization====================================================================
         * */
         mtextView.setText(poli.getName());
         jam.setText(String.format(Locale.getDefault(), "%s\n%s - %s", "Setiap Hari",

@@ -9,7 +9,9 @@ package com.masbie.travelohealth.service.service.get;
  */
 
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.DetailedRoomClassPojo;
 import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
+import com.masbie.travelohealth.pojo.service.RoomSectorPojo;
 import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.util.List;
 import retrofit2.Call;
@@ -22,4 +24,7 @@ public interface InformationService
 
     @GET("/m/api/patient/service/get/doctor")
     Call<ResponsePojo<List<DoctorsServicesPojo>>> getDoctor();
+
+    @GET("/m/api/patient/service/get/room")
+    Call<ResponsePojo<List<RoomSectorPojo<DetailedRoomClassPojo>>>> getRoom();
 }
