@@ -156,7 +156,7 @@ public class Home extends AppCompatActivity
                     f3.setVisibility(View.GONE);
                     f4.setVisibility(View.GONE);
                     f5.setVisibility(View.VISIBLE);
-                    setTitle("Kamar");
+                    setTitle("Akun");
                     editor.putInt("menu", 5);
                     editor.commit();
                     return true;

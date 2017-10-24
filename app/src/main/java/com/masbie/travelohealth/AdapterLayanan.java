@@ -50,7 +50,7 @@ import retrofit2.Response;
     private FirebaseAuth      mAuth;
     private DatabaseReference mDatabase;
     private FirebaseStorage   storage = FirebaseStorage.getInstance();
-    private DateTimeFormatter hms     = DateTimeFormat.forPattern("HH:mm:ss");
+    private DateTimeFormatter hms     = DateTimeFormat.forPattern("HH:mm");
     private DateTimeFormatter ymd     = DateTimeFormat.forPattern("YYYY-MM-dd");
     private Random            random  = new Random();
     private DateTimeZone      zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
@@ -99,8 +99,10 @@ import retrofit2.Response;
         * Dialog Initialization ===================================================================
         * */
         //System.out.println("cek keter" + cekKetersediaan(poli.hari, poli.jamkerja));
-        //if(!cekKetersediaan(poli.hari, poli.jamkerja))
-        if(false)
+        System.out.println("cek1"+poli.getTimeStart().toString(hms));
+        System.out.println("cek2"+poli.getTimeEnd().toString(hms));
+        if(!cekKetersediaan("Setiap Hari", poli.getTimeStart().toString(hms), poli.getTimeEnd().toString(hms)))
+//        if(false)
         {
             pesan.setText("TUTUP");
             pesan.setBackgroundColor(Color.GRAY);
@@ -251,9 +253,8 @@ import retrofit2.Response;
         return viewRow;
     }
 
-    public boolean cekKetersediaan(String hari, String waktu)
+    public boolean cekKetersediaan(String hari, String waktumulai, String waktuselesai)
     {
-        waktu = waktu.replace(".", "titik");
         hari = hari.replace(" ", "");
         Calendar calendar    = Calendar.getInstance();
         int      day         = calendar.get(Calendar.DAY_OF_WEEK);
@@ -292,14 +293,14 @@ import retrofit2.Response;
             {
                 cek_hari = true;
             }
+            if(semuahari[i].equalsIgnoreCase("SetiapHari")){
+                cek_hari = true;
+            }
         }
-        String[] waktu_tersedia = waktu.split("-");
-        System.out.println(waktu_tersedia[0]);
-        System.out.println(waktu_tersedia[1]);
-        String[] waktuawal = waktu_tersedia[0].split("titik");
+        String[] waktuawal = waktumulai.split(":");
         System.out.println(waktuawal[0]);
         System.out.println(waktuawal[1]);
-        String[] waktuakhir      = waktu_tersedia[1].split("titik");
+        String[] waktuakhir      = waktuselesai.split(":");
         int      jam             = calendar.get(Calendar.HOUR_OF_DAY);
         int      menit           = calendar.get(Calendar.MINUTE);
         int      konv_waktu      = jam * 60 + menit;
