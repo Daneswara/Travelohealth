@@ -51,7 +51,7 @@ import retrofit2.Response;
     private FirebaseAuth      mAuth;
     private DatabaseReference mDatabase;
     private FirebaseStorage   storage = FirebaseStorage.getInstance();
-    private DateTimeFormatter hms     = DateTimeFormat.forPattern("HH:mm:ss");
+    private DateTimeFormatter hms     = DateTimeFormat.forPattern("HH:mm");
     private DateTimeFormatter ymd     = DateTimeFormat.forPattern("YYYY-MM-dd");
     private Random            random  = new Random();
     private DateTimeZone      zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
@@ -93,6 +93,92 @@ import retrofit2.Response;
                     service.getName(),
                     service.getOperationStart().toString(hms),
                     service.getOperationEnd().toString(hms)));
+            /*
+        * Dialog Initialization ===================================================================
+        * */
+            if(!cekKetersediaan("Setiap Hari", service.getOperationStart().toString(hms), service.getOperationStart().toString(hms)))
+//        if(false)
+            {
+                pesan.setText("TUTUP");
+                pesan.setBackgroundColor(Color.GRAY);
+                pesan.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                                .setTitleText("Layanan TUTUP!")
+                                .setContentText("Anda dapat mencoba lagi ketika layanan telah dibuka.")
+                                .show();
+                    }
+                });
+            }
+        else
+            {
+                pesan.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                                .setTitleText("Apa anda yakin?")
+                                .setContentText("Anda akan memesan " + dokter.getName() + "!")
+                                .setConfirmText("Ya, saya yakin!")
+                                .setCancelText("Batal")
+                                .showCancelButton(true)
+                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sDialog)
+                                    {
+                                        sDialog.cancel();
+                                    }
+                                })
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
+                                {
+                                    @Override
+                                    public void onClick(final SweetAlertDialog sDialog)
+                                    {
+                                        if(dokter.getServices().size() > 0)
+                                        {
+                                            final ServiceOperatedPojo service  = dokter.getServices().get(0);
+                                            Integer                   doctor   = service.getId();
+                                            LocalDate                 tanggal  = new LocalDate(zone);
+                                            ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
+                                            RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueuePojo>>()
+                                            {
+                                                @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
+                                                {
+                                                    ServiceQueuePojo queue = response.body().getData().getResult();
+                                                    //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
+                                                    //Implementasi ini sama persis dengan AdapterLayanan jadi 1 db
+                                                    //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
+                                                    sDialog
+                                                            .setTitleText("Berhasil!")
+                                                            .setContentText("Anda telah masuk dalam antrian!")
+                                                            .setConfirmText("OK")
+                                                            .showCancelButton(false)
+                                                            .setConfirmClickListener(null)
+                                                            .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                                                }
+
+                                                @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
+                                                {
+                                                    Dao.defaultFailureTask(context, call, throwable);
+                                                }
+                                            });
+
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(context, "Tidak Ada Layanan", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                })
+                                .show();
+                    }
+                });
+            }
         }
         else
         {
@@ -105,166 +191,14 @@ import retrofit2.Response;
              .load(storageRef)
              .into(mimageView);*/
 
-        /*
-        * Dialog Initialization ===================================================================
-        * */
-        //if(!cekKetersediaan(dokter.hari, dokter.jampraktek))
-        if(false)
-        {
-            pesan.setText("TUTUP");
-            pesan.setBackgroundColor(Color.GRAY);
-            pesan.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-                            .setTitleText("Layanan TUTUP!")
-                            .setContentText("Anda dapat mencoba lagi ketika layanan telah dibuka.")
-                            .show();
-                }
-            });
-        }
-        else
-        {
-            pesan.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
-                            .setTitleText("Apa anda yakin?")
-                            .setContentText("Anda akan memesan " + dokter.getName() + "!")
-                            .setConfirmText("Ya, saya yakin!")
-                            .setCancelText("Batal")
-                            .showCancelButton(true)
-                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
-                            {
-                                @Override
-                                public void onClick(SweetAlertDialog sDialog)
-                                {
-                                    sDialog.cancel();
-                                }
-                            })
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                            {
-                                @Override
-                                public void onClick(final SweetAlertDialog sDialog)
-                                {
-                                    if(dokter.getServices().size() > 0)
-                                    {
-                                        final ServiceOperatedPojo service  = dokter.getServices().get(0);
-                                        Integer                   doctor   = service.getId();
-                                        LocalDate                 tanggal  = new LocalDate(zone);
-                                        ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
-                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueuePojo>>()
-                                        {
-                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
-                                            {
-                                                ServiceQueuePojo queue = response.body().getData().getResult();
-                                                //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
-                                                //Implementasi ini sama persis dengan AdapterLayanan jadi 1 db
-                                                //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
-                                                sDialog
-                                                        .setTitleText("Berhasil!")
-                                                        .setContentText("Anda telah masuk dalam antrian!")
-                                                        .setConfirmText("OK")
-                                                        .showCancelButton(false)
-                                                        .setConfirmClickListener(null)
-                                                        .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                            }
 
-                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
-                                            {
-                                                Dao.defaultFailureTask(context, call, throwable);
-                                            }
-                                        });
-                                        /*Calendar calendar = Calendar.getInstance();
-                                        String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                        mDatabase.child("antrian").child(tanggal).child(dokter.poli).addListenerForSingleValueEvent(new ValueEventListener()
-                                        {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot)
-                                            {
-                                                Calendar calendar = Calendar.getInstance();
-                                                String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                                calendar.add(Calendar.HOUR, 2);
-                                                if(!dataSnapshot.hasChild("antrian"))
-                                                {
-                                                    mDatabase.child("antrian").child(tanggal).child(dokter.poli).child("antrian").setValue(1);
-                                                    mDatabase.child("antrian").child(tanggal).child(dokter.poli).child("proses").setValue(1);
-                                                    Pesan pesanan = new Pesan(dokter.id, 1, calendar.getTimeInMillis(), "proses", mAuth.getCurrentUser().getUid(), dokter.gambar);
-                                                    mDatabase.child("antrian").child(tanggal).child(dokter.poli).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
-                                                    sDialog
-                                                            .setTitleText("Berhasil!")
-                                                            .setContentText("Anda telah masuk dalam antrian!")
-                                                            .setConfirmText("OK")
-                                                            .showCancelButton(false)
-                                                            .setConfirmClickListener(null)
-                                                            .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                                }
-                                                else
-                                                {
-                                                    mDatabase.child("antrian").child(tanggal).child(dokter.poli).child("antrian").addListenerForSingleValueEvent(new ValueEventListener()
-                                                    {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot)
-                                                        {
-                                                            Calendar calendar = Calendar.getInstance();
-                                                            String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                                            calendar.add(Calendar.HOUR, 2);
-                                                            mDatabase.child("antrian").child(tanggal).child(dokter.poli).child("antrian").setValue((long) dataSnapshot.getValue() + 1);
-                                                            Pesan pesanan = new Pesan(dokter.id, (long) dataSnapshot.getValue() + 1, calendar.getTimeInMillis(), "antri", mAuth.getCurrentUser().getUid(), dokter.gambar);
-                                                            mDatabase.child("antrian").child(tanggal).child(dokter.poli).child(String.valueOf(Calendar.getInstance().getTimeInMillis())).setValue(pesanan);
-                                                            fl.setVisibility(View.VISIBLE);
-                                                            f2.setVisibility(View.GONE);
-                                                            navigation.setSelectedItemId(R.id.navigation_home);
-                                                            sDialog
-                                                                    .setTitleText("Berhasil!")
-                                                                    .setContentText("Anda telah masuk dalam antrian!")
-                                                                    .setConfirmText("OK")
-                                                                    .showCancelButton(false)
-                                                                    .setConfirmClickListener(null)
-                                                                    .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError)
-                                                        {
-
-                                                        }
-                                                    });
-
-                                                }
-                                                //subscripe
-                                                FirebaseMessaging.getInstance().subscribeToTopic(dokter.poli);
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError)
-                                            {
-
-                                            }
-                                        });*/
-
-                                    }
-                                    else
-                                    {
-                                        Toast.makeText(context, "Tidak Ada Layanan", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            })
-                            .show();
-                }
-            });
-        }
 
         return viewRow;
     }
 
-    public boolean cekKetersediaan(String hari, String waktu)
+    public boolean cekKetersediaan(String hari, String waktupertama, String waktuterakhir)
     {
-        waktu = waktu.replace(".", "titik");
+//        waktu = waktu.replace(".", "titik");
         hari = hari.replace(" ", "");
         Calendar calendar    = Calendar.getInstance();
         int      day         = calendar.get(Calendar.DAY_OF_WEEK);
@@ -303,14 +237,14 @@ import retrofit2.Response;
             {
                 cek_hari = true;
             }
+            if(semuahari[i].equalsIgnoreCase("SetiapHari")){
+                cek_hari = true;
+            }
         }
-        String[] waktu_tersedia = waktu.split("-");
-        System.out.println(waktu_tersedia[0]);
-        System.out.println(waktu_tersedia[1]);
-        String[] waktuawal = waktu_tersedia[0].split("titik");
+        String[] waktuawal = waktupertama.split(":");
         System.out.println(waktuawal[0]);
         System.out.println(waktuawal[1]);
-        String[] waktuakhir      = waktu_tersedia[1].split("titik");
+        String[] waktuakhir      = waktuterakhir.split(":");
         int      jam             = calendar.get(Calendar.HOUR_OF_DAY);
         int      menit           = calendar.get(Calendar.MINUTE);
         int      konv_waktu      = jam * 60 + menit;
