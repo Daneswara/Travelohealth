@@ -9,14 +9,22 @@ package com.masbie.travelohealth.dao.external.request;
  */
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import com.google.gson.GsonBuilder;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import com.masbie.travelohealth.service.service.request.RegisterService;
 import com.masbie.travelohealth.util.Setting;
+import java.io.File;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -52,6 +60,42 @@ public class RegisterDao
         @NonNull final Retrofit              retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
         @NonNull final RegisterService       registerService = retrofit.create(RegisterService.class);
         Call<ResponsePojo<ServiceQueuePojo>> service         = registerService.registerService(serviceRequest);
+        service.enqueue(callback);
+
+        return service;
+    }
+
+    public static Call<ResponsePojo<RoomQueueSummaryPojo>> registerRoomRequest(RoomRequestPojo roomRequest, File image, final Context context, Callback<ResponsePojo<RoomQueueSummaryPojo>> callback)
+    {
+        Timber.d("registerServiceRequest");
+
+        if(callback == null)
+        {
+            callback = new Callback<ResponsePojo<RoomQueueSummaryPojo>>()
+            {
+                @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Response<ResponsePojo<RoomQueueSummaryPojo>> response)
+                {
+                    Dao.defaultSuccessTask(call, response);
+                }
+
+                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Throwable throwable)
+                {
+                    Dao.defaultFailureTask(context, call, throwable);
+                }
+            };
+        }
+
+        GsonBuilder builder = new GsonBuilder();
+        RoomRequestPojo.inferenceGsonBuilder(builder);
+        RoomQueueSummaryPojo.inferenceGsonBuilder(builder);
+
+        Uri                uri         = FileProvider.getUriForFile(context, Setting.getOurInstance().getFileProvider(), image);
+        RequestBody        requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(uri)), image);
+        MultipartBody.Part imageBody   = MultipartBody.Part.createFormData("validation", image.getName(), requestFile);
+
+        @NonNull final Retrofit                  retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final RegisterService           registerService = retrofit.create(RegisterService.class);
+        Call<ResponsePojo<RoomQueueSummaryPojo>> service         = registerService.registerRoom(roomRequest.partMap(), imageBody);
         service.enqueue(callback);
 
         return service;
