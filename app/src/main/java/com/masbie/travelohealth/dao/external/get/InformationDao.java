@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.GsonBuilder;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
+import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
 import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import com.masbie.travelohealth.service.service.get.InformationService;
 import com.masbie.travelohealth.util.Setting;
@@ -47,9 +48,40 @@ public class InformationDao
 
         GsonBuilder builder = new GsonBuilder();
         ServicesDoctorsPojo.inferenceGsonBuilder(builder);
-        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, builder, true);
-        @NonNull final InformationService informationService = retrofit.create(InformationService.class);
-        Call<ResponsePojo<List<ServicesDoctorsPojo>>> service = informationService.getService();
+        @NonNull final Retrofit                       retrofit           = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final InformationService             informationService = retrofit.create(InformationService.class);
+        Call<ResponsePojo<List<ServicesDoctorsPojo>>> service            = informationService.getService();
+        service.enqueue(response);
+
+        return service;
+    }
+
+    public static Call<ResponsePojo<List<DoctorsServicesPojo>>> getDoctor(final Context context, Callback<ResponsePojo<List<DoctorsServicesPojo>>> response)
+    {
+        Timber.d("registerServiceRequest");
+
+        if(response == null)
+        {
+            response = new Callback<ResponsePojo<List<DoctorsServicesPojo>>>()
+            {
+                @Override public void onResponse(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Response<ResponsePojo<List<DoctorsServicesPojo>>> response)
+                {
+                    Dao.defaultSuccessTask(call, response);
+                }
+
+                @Override public void onFailure(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Throwable throwable)
+                {
+                    Dao.defaultFailureTask(context, call, throwable);
+                }
+            };
+        }
+
+        GsonBuilder builder = new GsonBuilder();
+        DoctorsServicesPojo.inferenceGsonBuilder(builder);
+
+        @NonNull final Retrofit                       retrofit           = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final InformationService             informationService = retrofit.create(InformationService.class);
+        Call<ResponsePojo<List<DoctorsServicesPojo>>> service            = informationService.getDoctor();
         service.enqueue(response);
 
         return service;
