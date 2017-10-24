@@ -58,18 +58,18 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     /**
      * Id to identity READ_CONTACTS permission request.
      */
-    private static final int REQUEST_READ_CONTACTS = 0;
-    private static final String TAG = "Login Service";
+    private static final int      REQUEST_READ_CONTACTS = 0;
+    private static final String   TAG                   = "Login Service";
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[] {
+    private static final String[] DUMMY_CREDENTIALS     = new String[] {
             "foo@example.com:hello", "bar@example.com:world"
     };
     SweetAlertDialog prosses_login;
     private DatabaseReference mDatabase;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth      mAuth;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -77,7 +77,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView, mCekPasswordView, mNamaView;
+    private EditText             mPasswordView, mCekPasswordView, mNamaView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -213,14 +213,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         mNamaView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email        = mEmailView.getText().toString();
+        String password     = mPasswordView.getText().toString();
         String cek_password = mCekPasswordView.getText().toString();
-        String name = mNamaView.getText().toString();
+        String name         = mNamaView.getText().toString();
 
 
-        boolean cancel = false;
-        View focusView = null;
+        boolean cancel    = false;
+        View    focusView = null;
 
         if(TextUtils.isEmpty(name))
         {
@@ -301,8 +301,8 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                              prosses_login.dismissWithAnimation();
                              // Sign in success, update UI with the signed-in user's information
                              Log.d(TAG, "createUserWithEmail:success");
-                             FirebaseUser user = mAuth.getCurrentUser();
-                             User newuser = new User(mNamaView.getText().toString(), mEmailView.getText().toString());
+                             FirebaseUser user    = mAuth.getCurrentUser();
+                             User         newuser = new User(mNamaView.getText().toString(), mEmailView.getText().toString());
                              mDatabase.child("users").child(user.getUid()).setValue(newuser);
                              String token = FirebaseInstanceId.getInstance().getToken();
                              mDatabase.child("users").child(user.getUid()).child("token").setValue(token);
@@ -461,7 +461,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                 ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
         };
 
-        int ADDRESS = 0;
+        int ADDRESS    = 0;
         int IS_PRIMARY = 1;
     }
 

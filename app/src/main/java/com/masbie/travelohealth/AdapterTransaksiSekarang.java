@@ -26,10 +26,10 @@ import java.util.List;
 
 public class AdapterTransaksiSekarang extends ArrayAdapter
 {
-    Context context;
+    Context          context;
     DirectionsResult result;
-    List<Antrian> daftar_antrian;
-    long proses;
+    List<Antrian>    daftar_antrian;
+    long             proses;
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
     public AdapterTransaksiSekarang(Activity context, List<Antrian> daftar_antrian, DirectionsResult result, long proses)
@@ -48,12 +48,12 @@ public class AdapterTransaksiSekarang extends ArrayAdapter
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewRow = layoutInflater.inflate(R.layout.layout_transaksi_listview, null,
                 true);
-        TextView mtextView = viewRow.findViewById(R.id.urutan);
-        ImageView mimageView = viewRow.findViewById(R.id.image_view);
-        TextView antriansaatini = viewRow.findViewById(R.id.antrianke);
-        TextView pelayanan = viewRow.findViewById(R.id.estimasipelayanan);
-        TextView perjalanan = viewRow.findViewById(R.id.estimasiperjalanan);
-        Button detail = viewRow.findViewById(R.id.detail);
+        TextView  mtextView      = viewRow.findViewById(R.id.urutan);
+        ImageView mimageView     = viewRow.findViewById(R.id.image_view);
+        TextView  antriansaatini = viewRow.findViewById(R.id.antrianke);
+        TextView  pelayanan      = viewRow.findViewById(R.id.estimasipelayanan);
+        TextView  perjalanan     = viewRow.findViewById(R.id.estimasiperjalanan);
+        Button    detail         = viewRow.findViewById(R.id.detail);
         mtextView.setText("No. " + daftar_antrian.get(i).no_antrian);
         antriansaatini.setText("Saat ini antrian ke-" + proses);
         CharSequence estimasi = DateUtils.getRelativeTimeSpanString(daftar_antrian.get(i).pelayanan, Calendar.getInstance().getTimeInMillis(), 0);

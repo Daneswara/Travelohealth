@@ -19,9 +19,9 @@ import org.joda.time.LocalTime;
 public class ServicePojo
 {
     @SerializedName("id")
-    @Nullable private Integer id;
+    @Nullable private Integer   id;
     @SerializedName("name")
-    @Nullable private String name;
+    @Nullable private String    name;
     @SerializedName("start")
     @Nullable private LocalTime timeStart;
     @SerializedName("end")

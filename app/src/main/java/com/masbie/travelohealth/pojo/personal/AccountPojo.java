@@ -17,9 +17,9 @@ public class AccountPojo
     @SerializedName("id")
     @Nullable private Integer id;
     @SerializedName("username")
-    @Nullable private String username;
+    @Nullable private String  username;
     @SerializedName("coupon")
-    @Nullable private String identity;
+    @Nullable private String  identity;
 
     public AccountPojo(@Nullable Integer id, @Nullable String username, @Nullable String identity)
     {

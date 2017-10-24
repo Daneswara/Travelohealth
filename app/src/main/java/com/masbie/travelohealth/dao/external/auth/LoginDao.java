@@ -49,9 +49,9 @@ public class LoginDao
         @NonNull GsonBuilder gsonBuilder = new GsonBuilder();
         UserLoginPojo.inferenceGsonBuilder(gsonBuilder);
 
-        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, gsonBuilder, false);
-        @NonNull final LoginService loginService = retrofit.create(LoginService.class);
-        @NonNull final Call<ResponsePojo<TokenPojo>> service = loginService.login(userCredential);
+        @NonNull final Retrofit                      retrofit     = Setting.Networking.createDefaultConnection(context, gsonBuilder, false);
+        @NonNull final LoginService                  loginService = retrofit.create(LoginService.class);
+        @NonNull final Call<ResponsePojo<TokenPojo>> service      = loginService.login(userCredential);
         service.enqueue(callback);
 
         return service;
@@ -79,9 +79,9 @@ public class LoginDao
 
         @NonNull GsonBuilder gsonBuilder = new GsonBuilder();
 
-        @NonNull final Retrofit retrofit = Setting.Networking.createDefaultConnection(context, gsonBuilder, true);
-        @NonNull final LoginService loginService = retrofit.create(LoginService.class);
-        @NonNull final Call<ResponsePojo<Void>> service = loginService.ping();
+        @NonNull final Retrofit                 retrofit     = Setting.Networking.createDefaultConnection(context, gsonBuilder, true);
+        @NonNull final LoginService             loginService = retrofit.create(LoginService.class);
+        @NonNull final Call<ResponsePojo<Void>> service      = loginService.ping();
         service.enqueue(callback);
 
         return service;

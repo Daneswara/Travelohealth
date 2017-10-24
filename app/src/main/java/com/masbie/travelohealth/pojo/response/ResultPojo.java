@@ -14,9 +14,9 @@ import com.google.gson.annotations.SerializedName;
 public class ResultPojo<T>
 {
     @SerializedName("status")
-    @Nullable Integer status;
+    @Nullable Integer     status;
     @SerializedName("result")
-    @Nullable T result;
+    @Nullable T           result;
     @SerializedName("message")
     @Nullable MessagePojo message;
 

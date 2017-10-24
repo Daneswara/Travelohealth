@@ -75,15 +75,15 @@ public class Setting
         public static SSLContext getSSLSocketFactory(Context context)
         {
             final String CLIENT_TRUST_PASSWORD = "ez24get";
-            final String CLIENT_AGREEMENT = "TLS";
+            final String CLIENT_AGREEMENT      = "TLS";
             final String CLIENT_TRUST_KEYSTORE = "BKS";
-            SSLContext sslContext = null;
+            SSLContext   sslContext            = null;
             try
             {
                 sslContext = SSLContext.getInstance(CLIENT_AGREEMENT);
                 TrustManagerFactory trustManager = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                KeyStore tks = KeyStore.getInstance(CLIENT_TRUST_KEYSTORE);
-                InputStream is;
+                KeyStore            tks          = KeyStore.getInstance(CLIENT_TRUST_KEYSTORE);
+                InputStream         is;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                 {
                     is = context.getResources().openRawResource(R.raw.travelohealth_com_bks);
