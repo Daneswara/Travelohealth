@@ -9,7 +9,7 @@ package com.masbie.travelohealth.service.service.request;
  */
 
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import java.util.Map;
@@ -29,6 +29,6 @@ public interface RegisterService
 
     @Multipart
     @POST("/m/api/patient/service/request/room")
-    Call<ResponsePojo<RoomQueueSummaryPojo>> registerRoom(@PartMap() Map<String, RequestBody> data, @Part MultipartBody.Part file);
+    Call<ResponsePojo<RoomQueueProcessedPojo>> registerRoom(@PartMap() Map<String, RequestBody> data, @Part MultipartBody.Part file);
 
 }

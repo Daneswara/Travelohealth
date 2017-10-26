@@ -15,7 +15,7 @@ import android.support.v4.content.FileProvider;
 import com.google.gson.GsonBuilder;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
@@ -65,20 +65,20 @@ public class RegisterDao
         return service;
     }
 
-    public static Call<ResponsePojo<RoomQueueSummaryPojo>> registerRoomRequest(RoomRequestPojo roomRequest, File image, final Context context, Callback<ResponsePojo<RoomQueueSummaryPojo>> callback)
+    public static Call<ResponsePojo<RoomQueueProcessedPojo>> registerRoomRequest(RoomRequestPojo roomRequest, File image, final Context context, Callback<ResponsePojo<RoomQueueProcessedPojo>> callback)
     {
         Timber.d("registerServiceRequest");
 
         if(callback == null)
         {
-            callback = new Callback<ResponsePojo<RoomQueueSummaryPojo>>()
+            callback = new Callback<ResponsePojo<RoomQueueProcessedPojo>>()
             {
-                @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Response<ResponsePojo<RoomQueueSummaryPojo>> response)
+                @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<RoomQueueProcessedPojo>> response)
                 {
                     Dao.defaultSuccessTask(call, response);
                 }
 
-                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Throwable throwable)
+                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Throwable throwable)
                 {
                     Dao.defaultFailureTask(context, call, throwable);
                 }
@@ -87,15 +87,15 @@ public class RegisterDao
 
         GsonBuilder builder = new GsonBuilder();
         RoomRequestPojo.inferenceGsonBuilder(builder);
-        RoomQueueSummaryPojo.inferenceGsonBuilder(builder);
+        RoomQueueProcessedPojo.inferenceGsonBuilder(builder);
 
         Uri                uri         = FileProvider.getUriForFile(context, Setting.getOurInstance().getFileProvider(), image);
         RequestBody        requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(uri)), image);
         MultipartBody.Part imageBody   = MultipartBody.Part.createFormData("validation", image.getName(), requestFile);
 
-        @NonNull final Retrofit                  retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
-        @NonNull final RegisterService           registerService = retrofit.create(RegisterService.class);
-        Call<ResponsePojo<RoomQueueSummaryPojo>> service         = registerService.registerRoom(roomRequest.partMap(), imageBody);
+        @NonNull final Retrofit                    retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final RegisterService             registerService = retrofit.create(RegisterService.class);
+        Call<ResponsePojo<RoomQueueProcessedPojo>> service         = registerService.registerRoom(roomRequest.partMap(), imageBody);
         service.enqueue(callback);
 
         return service;

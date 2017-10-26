@@ -24,7 +24,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.dao.external.request.RegisterDao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.io.File;
@@ -151,11 +151,11 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                             Integer         room     = getKamar;
                                             LocalDate       tanggal  = tanggalpilihan;
                                             RoomRequestPojo selected = new RoomRequestPojo(room, tanggal);
-                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueSummaryPojo>>()
+                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueProcessedPojo>>()
                                             {
-                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Response<ResponsePojo<RoomQueueSummaryPojo>> response)
+                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<RoomQueueProcessedPojo>> response)
                                                 {
-                                                    RoomQueueSummaryPojo queue = response.body().getData().getResult();
+                                                    RoomQueueProcessedPojo queue = response.body().getData().getResult();
                                                     //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
                                                     //Implementasi ini hampir sama dengan Queue Service
                                                     //FirebaseDao.subscribe(String.format(Locale.getDefault(), "room-%s", queue.getOrder().toString(ymd)));
@@ -178,7 +178,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
 
-                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Throwable throwable)
+                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Throwable throwable)
                                                 {
                                                     Dao.defaultFailureTask(PesanKamar.this, call, throwable);
                                                 }
