@@ -17,7 +17,7 @@ import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
 import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import com.masbie.travelohealth.service.service.request.RegisterService;
 import com.masbie.travelohealth.util.Setting;
@@ -33,20 +33,20 @@ import timber.log.Timber;
 
 public class RegisterDao
 {
-    public static Call<ResponsePojo<ServiceQueuePojo>> registerServiceRequest(ServiceRequestPojo serviceRequest, final Context context, Callback<ResponsePojo<ServiceQueuePojo>> callback)
+    public static Call<ResponsePojo<ServiceQueueProcessedPojo>> registerServiceRequest(ServiceRequestPojo serviceRequest, final Context context, Callback<ResponsePojo<ServiceQueueProcessedPojo>> callback)
     {
         Timber.d("registerServiceRequest");
 
         if(callback == null)
         {
-            callback = new Callback<ResponsePojo<ServiceQueuePojo>>()
+            callback = new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
             {
-                @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
+                @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                 {
                     Dao.defaultSuccessTask(call, response);
                 }
 
-                @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
+                @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
                 {
                     Dao.defaultFailureTask(context, call, throwable);
                 }
@@ -55,11 +55,11 @@ public class RegisterDao
 
         GsonBuilder builder = new GsonBuilder();
         ServiceRequestPojo.inferenceGsonBuilder(builder);
-        ServiceQueuePojo.inferenceGsonBuilder(builder);
+        ServiceQueueProcessedPojo.inferenceGsonBuilder(builder);
 
-        @NonNull final Retrofit              retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
-        @NonNull final RegisterService       registerService = retrofit.create(RegisterService.class);
-        Call<ResponsePojo<ServiceQueuePojo>> service         = registerService.registerService(serviceRequest);
+        @NonNull final Retrofit                       retrofit        = Setting.Networking.createDefaultConnection(context, builder, true);
+        @NonNull final RegisterService                registerService = retrofit.create(RegisterService.class);
+        Call<ResponsePojo<ServiceQueueProcessedPojo>> service         = registerService.registerService(serviceRequest);
         service.enqueue(callback);
 
         return service;

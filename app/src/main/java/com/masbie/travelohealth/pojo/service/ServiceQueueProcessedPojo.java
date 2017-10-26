@@ -19,21 +19,21 @@ import org.joda.time.LocalTime;
 public class ServiceQueueProcessedPojo extends ServiceQueuePojo
 {
     @Expose
-    @Nullable Integer processed;
+    @Nullable Integer queueProcessed;
 
     public ServiceQueueProcessedPojo()
     {
     }
 
-    public ServiceQueueProcessedPojo(@Nullable Integer processed)
+    public ServiceQueueProcessedPojo(@Nullable Integer queueProcessed)
     {
-        this.processed = processed;
+        this.queueProcessed = queueProcessed;
     }
 
-    public ServiceQueueProcessedPojo(@Nullable Integer id, @Nullable Integer queue, @Nullable LocalDate order, @Nullable LocalDateTime timestamp, @Nullable LocalTime start, @Nullable LocalTime end, @Nullable ServicePojo service, @Nullable DoctorPojo doctor, @Nullable Integer processed)
+    public ServiceQueueProcessedPojo(@Nullable Integer id, @Nullable Integer queue, @Nullable LocalDate order, @Nullable LocalDateTime timestamp, @Nullable LocalTime start, @Nullable LocalTime end, @Nullable ServicePojo service, @Nullable DoctorPojo doctor, @Nullable Integer queueProcessed)
     {
         super(id, queue, order, timestamp, start, end, service, doctor);
-        this.processed = processed;
+        this.queueProcessed = queueProcessed;
     }
 
     public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
@@ -41,14 +41,14 @@ public class ServiceQueueProcessedPojo extends ServiceQueuePojo
         ServiceQueuePojo.inferenceGsonBuilder(builder);
     }
 
-    @Nullable public Integer getProcessed()
+    @Nullable public Integer getQueueProcessed()
     {
-        return this.processed;
+        return this.queueProcessed;
     }
 
-    public void setProcessed(@Nullable Integer processed)
+    public void setQueueProcessed(@Nullable Integer queueProcessed)
     {
-        this.processed = processed;
+        this.queueProcessed = queueProcessed;
     }
 
     @Override public boolean equals(Object o)
@@ -68,14 +68,14 @@ public class ServiceQueueProcessedPojo extends ServiceQueuePojo
 
         ServiceQueueProcessedPojo that = (ServiceQueueProcessedPojo) o;
 
-        return getProcessed() != null ? getProcessed().equals(that.getProcessed()) : that.getProcessed() == null;
+        return getQueueProcessed() != null ? getQueueProcessed().equals(that.getQueueProcessed()) : that.getQueueProcessed() == null;
 
     }
 
     @Override public int hashCode()
     {
         int result = super.hashCode();
-        result = 31 * result + (getProcessed() != null ? getProcessed().hashCode() : 0);
+        result = 31 * result + (getQueueProcessed() != null ? getQueueProcessed().hashCode() : 0);
         return result;
     }
 
@@ -90,7 +90,7 @@ public class ServiceQueueProcessedPojo extends ServiceQueuePojo
                 ", end=" + end +
                 ", service=" + service +
                 ", doctor=" + doctor +
-                ", processed=" + processed +
+                ", queueProcessed=" + queueProcessed +
                 '}';
     }
 }

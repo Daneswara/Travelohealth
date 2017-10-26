@@ -23,7 +23,7 @@ import com.masbie.travelohealth.dao.external.request.RegisterDao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
 import com.masbie.travelohealth.pojo.service.ServiceOperatedPojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import java.util.Calendar;
 import java.util.List;
@@ -157,11 +157,11 @@ import retrofit2.Response;
                                         Integer                   doctor   = service.getId();
                                         LocalDate                 tanggal  = new LocalDate(zone);
                                         ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
-                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueuePojo>>()
+                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
                                         {
-                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
+                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                                             {
-                                                ServiceQueuePojo queue = response.body().getData().getResult();
+                                                ServiceQueueProcessedPojo queue = response.body().getData().getResult();
                                                 //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
                                                 //Implementasi ini sama persis dengan AdapterLayanan jadi 1 db
                                                 //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
@@ -174,7 +174,7 @@ import retrofit2.Response;
                                                         .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                             }
 
-                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
+                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
                                             {
                                                 Dao.defaultFailureTask(context, call, throwable);
                                             }

@@ -21,7 +21,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.dao.external.request.RegisterDao;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import com.masbie.travelohealth.pojo.service.ServicesDoctorsPojo;
 import java.util.Calendar;
@@ -36,6 +36,7 @@ import org.joda.time.format.DateTimeFormatter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
@@ -147,11 +148,12 @@ import retrofit2.Response;
                                         Integer            doctor   = poli.getDoctors().get(random.nextInt(poli.getDoctors().size())).getId();
                                         LocalDate          tanggal  = new LocalDate(zone);
                                         ServiceRequestPojo selected = new ServiceRequestPojo(doctor, tanggal);
-                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueuePojo>>()
+                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
                                         {
-                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
+                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                                             {
-                                                ServiceQueuePojo queue = response.body().getData().getResult();
+                                                ServiceQueueProcessedPojo queue = response.body().getData().getResult();
+                                                Timber.d(String.valueOf(queue));
                                                 //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
                                                 //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
                                                 sDialog
@@ -163,7 +165,7 @@ import retrofit2.Response;
                                                         .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                             }
 
-                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
+                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
                                             {
                                                 Dao.defaultFailureTask(context, call, throwable);
                                             }

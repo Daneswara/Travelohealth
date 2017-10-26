@@ -10,7 +10,7 @@ package com.masbie.travelohealth.service.service.request;
 
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import java.util.Map;
 import okhttp3.MultipartBody;
@@ -25,7 +25,7 @@ import retrofit2.http.PartMap;
 public interface RegisterService
 {
     @POST("/m/api/patient/service/request/service")
-    Call<ResponsePojo<ServiceQueuePojo>> registerService(@Body ServiceRequestPojo service);
+    Call<ResponsePojo<ServiceQueueProcessedPojo>> registerService(@Body ServiceRequestPojo service);
 
     @Multipart
     @POST("/m/api/patient/service/request/room")
