@@ -170,8 +170,8 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                                 @Override
                                                                 public void onClick(SweetAlertDialog sweetAlertDialog)
                                                                 {
-                                                                    Intent intent = new Intent(PesanKamar.this, Home.class);
-                                                                    startActivity(intent);
+//                                                                    Intent intent = new Intent(PesanKamar.this, Home.class);
+//                                                                    startActivity(intent);
                                                                     finish();
                                                                 }
                                                             })

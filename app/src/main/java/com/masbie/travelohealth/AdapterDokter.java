@@ -96,7 +96,7 @@ import retrofit2.Response;
             /*
         * Dialog Initialization ===================================================================
         * */
-            if(!cekKetersediaan("Setiap Hari", service.getOperationStart().toString(hms), service.getOperationStart().toString(hms)))
+            if(!cekKetersediaan("Setiap Hari", service.getOperationStart().toString(hms), service.getOperationEnd().toString(hms)))
 //        if(false)
             {
                 pesan.setText("TUTUP");
