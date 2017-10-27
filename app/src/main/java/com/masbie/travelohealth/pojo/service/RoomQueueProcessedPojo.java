@@ -20,9 +20,9 @@ import org.joda.time.LocalDateTime;
 public class RoomQueueProcessedPojo extends RoomQueuePojo
 {
     @SerializedName("room_summary")
-    @Nullable private RoomSummaryPojo roomSummary;
+    @Nullable RoomSummaryPojo roomSummary;
     @Expose
-    @Nullable private Integer         queueProcessed;
+    @Nullable Integer         queueProcessed;
 
     public RoomQueueProcessedPojo()
     {

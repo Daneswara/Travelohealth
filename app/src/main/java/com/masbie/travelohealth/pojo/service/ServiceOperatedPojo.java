@@ -17,9 +17,9 @@ import org.joda.time.LocalTime;
 public class ServiceOperatedPojo extends ServicePojo
 {
     @SerializedName("opened")
-    @Nullable private LocalTime operationStart;
+    @Nullable LocalTime operationStart;
     @SerializedName("closed")
-    @Nullable private LocalTime operationEnd;
+    @Nullable LocalTime operationEnd;
 
     public ServiceOperatedPojo(@Nullable LocalTime operationStart, @Nullable LocalTime operationEnd)
     {

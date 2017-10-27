@@ -18,7 +18,7 @@ import org.joda.time.LocalTime;
 public class DoctorsServicesPojo extends DoctorPojo
 {
     @SerializedName("service")
-    @Nullable private List<ServiceOperatedPojo> services;
+    @Nullable List<ServiceOperatedPojo> services;
 
     public DoctorsServicesPojo(@Nullable List<ServiceOperatedPojo> services)
     {

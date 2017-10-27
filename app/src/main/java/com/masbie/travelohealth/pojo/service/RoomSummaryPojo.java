@@ -16,13 +16,13 @@ import com.google.gson.annotations.SerializedName;
 public class RoomSummaryPojo extends RoomPojo
 {
     @SerializedName("class")
-    @Nullable private String  roomClass;
+    @Nullable String  roomClass;
     @SerializedName("sector")
-    @Nullable private String  sector;
+    @Nullable String  sector;
     @SerializedName("feature")
-    @Nullable private String  feature;
+    @Nullable String  feature;
     @SerializedName("cost")
-    @Nullable private Integer cost;
+    @Nullable Integer cost;
 
     public RoomSummaryPojo()
     {

@@ -16,9 +16,9 @@ import com.google.gson.annotations.SerializedName;
 public class RoomPojo
 {
     @SerializedName("id")
-    @Nullable private Integer id;
+    @Nullable Integer id;
     @SerializedName("name")
-    @Nullable private String  name;
+    @Nullable String  name;
 
     public RoomPojo()
     {

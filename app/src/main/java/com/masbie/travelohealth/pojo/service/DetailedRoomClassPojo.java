@@ -16,9 +16,9 @@ import com.google.gson.annotations.SerializedName;
 public class DetailedRoomClassPojo extends RoomClassPojo
 {
     @SerializedName("capacity")
-    @Nullable private Integer capacity;
+    @Nullable Integer capacity;
     @SerializedName("ready")
-    @Nullable private Integer ready;
+    @Nullable Integer ready;
 
     public DetailedRoomClassPojo(@Nullable Integer capacity, @Nullable Integer ready)
     {
