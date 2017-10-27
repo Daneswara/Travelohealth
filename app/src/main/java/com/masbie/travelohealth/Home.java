@@ -278,7 +278,7 @@ public class Home extends AppCompatActivity
             @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Response<ResponsePojo<List<DoctorsServicesPojo>>> response)
             {
                 daftar_dokter.addAll(response.body().getData().getResult());
-                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter, db);
                 androidListViewDokter.setAdapter(androidListDokter);
             }
 
