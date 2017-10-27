@@ -30,10 +30,11 @@ public class RoomSectorPojo<T extends RoomClassPojo> extends RoomPojo
         this.classes = classes;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         RoomClassPojo.inferenceGsonBuilder(builder);
         RoomPojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public List<T> getClasses()

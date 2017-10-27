@@ -19,13 +19,13 @@ import org.joda.time.LocalTime;
 public class ServicePojo
 {
     @SerializedName("id")
-    @Nullable private Integer   id;
+    @Nullable Integer   id;
     @SerializedName("name")
-    @Nullable private String    name;
+    @Nullable String    name;
     @SerializedName("start")
-    @Nullable private LocalTime timeStart;
+    @Nullable LocalTime timeStart;
     @SerializedName("end")
-    @Nullable private LocalTime timeEnd;
+    @Nullable LocalTime timeEnd;
 
     public ServicePojo()
     {
@@ -39,10 +39,11 @@ public class ServicePojo
         this.timeEnd = timeEnd;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeSerialization());
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeDeserialization());
+        return builder;
     }
 
     @Nullable public Integer getId()

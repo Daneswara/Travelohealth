@@ -22,9 +22,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
 import com.masbie.travelohealth.dao.external.request.RegisterDao;
+import com.masbie.travelohealth.dao.internal.queue.RoomDao;
+import com.masbie.travelohealth.db.DBOpenHelper;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.RoomQueueSummaryPojo;
+import com.masbie.travelohealth.pojo.service.RoomQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import java.io.File;
@@ -62,6 +65,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     private DateTimeFormatter ymd            = DateTimeFormat.forPattern("YYYY-MM-dd");
     private Random            random         = new Random();
     private DateTimeZone      zone           = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+    private DBOpenHelper db;
 
 
     @Override
@@ -83,6 +87,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         }
         else
         {
+            this.db = new DBOpenHelper(this);
             toolbar.setTitle("Pesan Kamar " + getKelas);
             ImageView toolbar_layout = findViewById(R.id.image_toolbar);
             toolbar_layout.setImageResource(R.drawable.vip1);
@@ -151,14 +156,13 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                             Integer         room     = getKamar;
                                             LocalDate       tanggal  = tanggalpilihan;
                                             RoomRequestPojo selected = new RoomRequestPojo(room, tanggal);
-                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueSummaryPojo>>()
+                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueProcessedPojo>>()
                                             {
-                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Response<ResponsePojo<RoomQueueSummaryPojo>> response)
+                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<RoomQueueProcessedPojo>> response)
                                                 {
-                                                    RoomQueueSummaryPojo queue = response.body().getData().getResult();
-                                                    //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
-                                                    //Implementasi ini hampir sama dengan Queue Service
-                                                    //FirebaseDao.subscribe(String.format(Locale.getDefault(), "room-%s", queue.getOrder().toString(ymd)));
+                                                    RoomQueueProcessedPojo queue = response.body().getData().getResult();
+                                                    RoomDao.insertOrUpdate(db, queue);
+                                                    FirebaseDao.subscribe(String.format(Locale.getDefault(), "room-%s", queue.getOrder().toString(ymd)));
                                                     proses_kirim.dismissWithAnimation();
                                                     sDialog
                                                             .setTitleText("Berhasil!")
@@ -178,7 +182,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
 
-                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueSummaryPojo>> call, @NonNull Throwable throwable)
+                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Throwable throwable)
                                                 {
                                                     Dao.defaultFailureTask(PesanKamar.this, call, throwable);
                                                 }
@@ -379,5 +383,14 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     {
         tanggalpilihan = ymd.parseDateTime(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)).toLocalDate();
         tanggal.setText("Tanggal Pesan: " + tanggalpilihan.toString(ymd));
+    }
+
+    @Override protected void onDestroy()
+    {
+        if(this.db != null)
+        {
+            this.db.close();
+        }
+        super.onDestroy();
     }
 }

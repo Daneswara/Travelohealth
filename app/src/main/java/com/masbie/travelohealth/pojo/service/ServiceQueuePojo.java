@@ -55,7 +55,7 @@ public class ServiceQueuePojo
         this.doctor = doctor;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServicePojo.inferenceGsonBuilder(builder);
         DoctorPojo.inferenceGsonBuilder(builder);
@@ -63,6 +63,7 @@ public class ServiceQueuePojo
         builder.registerTypeAdapter(LocalDate.class, new JodaLocalDateDeserialization());
         builder.registerTypeAdapter(LocalDateTime.class, new JodaLocalDateTimeSerialization());
         builder.registerTypeAdapter(LocalDateTime.class, new JodaLocalDateTimeDeserialization());
+        return builder;
     }
 
     @Nullable public Integer getId()

@@ -17,9 +17,9 @@ import org.joda.time.LocalTime;
 public class ServiceOperatedPojo extends ServicePojo
 {
     @SerializedName("opened")
-    @Nullable private LocalTime operationStart;
+    @Nullable LocalTime operationStart;
     @SerializedName("closed")
-    @Nullable private LocalTime operationEnd;
+    @Nullable LocalTime operationEnd;
 
     public ServiceOperatedPojo(@Nullable LocalTime operationStart, @Nullable LocalTime operationEnd)
     {
@@ -34,9 +34,10 @@ public class ServiceOperatedPojo extends ServicePojo
         this.operationEnd = operationEnd;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServicePojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public LocalTime getOperationStart()
