@@ -19,11 +19,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
 import com.masbie.travelohealth.dao.external.request.RegisterDao;
+import com.masbie.travelohealth.dao.internal.queue.ServiceDao;
+import com.masbie.travelohealth.db.DBOpenHelper;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
 import com.masbie.travelohealth.pojo.service.ServiceOperatedPojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueuePojo;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
 import java.util.Calendar;
 import java.util.List;
@@ -44,10 +47,11 @@ import retrofit2.Response;
 
 @SuppressWarnings("ConstantConditions") public class AdapterDokter extends ArrayAdapter<DoctorsServicesPojo>
 {
-    private List<DoctorsServicesPojo> daftar_dokter;
-    private Context                   context;
-    private BottomNavigationView      navigation;
-    private LinearLayout              fl, f2;
+    private final DBOpenHelper              db;
+    private       List<DoctorsServicesPojo> daftar_dokter;
+    private       Context                   context;
+    private       BottomNavigationView      navigation;
+    private       LinearLayout              fl, f2;
     private FirebaseAuth      mAuth;
     private DatabaseReference mDatabase;
     private FirebaseStorage   storage = FirebaseStorage.getInstance();
@@ -56,7 +60,7 @@ import retrofit2.Response;
     private Random            random  = new Random();
     private DateTimeZone      zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
 
-    public AdapterDokter(Activity context, List<DoctorsServicesPojo> daftar_dokter)
+    public AdapterDokter(Activity context, List<DoctorsServicesPojo> daftar_dokter, DBOpenHelper db)
     {
         super(context, R.layout.layout_dokter_listview, daftar_dokter);
         this.context = context;
@@ -66,6 +70,7 @@ import retrofit2.Response;
         fl = context.findViewById(R.id.transaksi);
         f2 = context.findViewById(R.id.dokter);
         navigation = context.findViewById(R.id.navigation);
+        this.db = db;
     }
 
     @Override
@@ -139,15 +144,42 @@ import retrofit2.Response;
                                     @Override
                                     public void onClick(final SweetAlertDialog sDialog)
                                     {
-                                        if(dokter.getServices().size() > 0)
+                                        final ServiceOperatedPojo service  = dokter.getServices().get(0);
+                                        Integer                   doctor   = service.getId();
+                                        LocalDate                 tanggal  = new LocalDate(zone);
+                                        ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
+                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
                                         {
-                                            final ServiceOperatedPojo service  = dokter.getServices().get(0);
-                                            Integer                   doctor   = service.getId();
-                                            LocalDate                 tanggal  = new LocalDate(zone);
-                                            ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
-                                            RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueuePojo>>()
+                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                                             {
-                                                @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Response<ResponsePojo<ServiceQueuePojo>> response)
+                                                ServiceQueueProcessedPojo queue = response.body().getData().getResult();
+                                                ServiceDao.insertOrUpdate(db, queue);
+                                                FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
+                                                sDialog
+                                                        .setTitleText("Berhasil!")
+                                                        .setContentText("Anda telah masuk dalam antrian!")
+                                                        .setConfirmText("OK")
+                                                        .showCancelButton(false)
+                                                        .setConfirmClickListener(null)
+                                                        .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                                            }
+
+                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
+                                            {
+                                                Dao.defaultFailureTask(context, call, throwable);
+                                            }
+                                        });
+                                        /*Calendar calendar = Calendar.getInstance();
+                                        String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
+                                        mDatabase.child("antrian").child(tanggal).child(dokter.poli).addListenerForSingleValueEvent(new ValueEventListener()
+                                        {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot)
+                                            {
+                                                Calendar calendar = Calendar.getInstance();
+                                                String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
+                                                calendar.add(Calendar.HOUR, 2);
+                                                if(!dataSnapshot.hasChild("antrian"))
                                                 {
                                                     ServiceQueuePojo queue = response.body().getData().getResult();
                                                     //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif

@@ -36,6 +36,7 @@ import com.masbie.travelohealth.dao.TokenDao;
 import com.masbie.travelohealth.dao.external.Dao;
 import com.masbie.travelohealth.dao.external.get.InformationDao;
 import com.masbie.travelohealth.dao.external.personal.AccountDao;
+import com.masbie.travelohealth.db.DBOpenHelper;
 import com.masbie.travelohealth.object.Antrian;
 import com.masbie.travelohealth.pojo.personal.AccountPojo;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
@@ -165,7 +166,8 @@ public class Home extends AppCompatActivity
         }
 
     };
-    private AccountPojo account;
+    private AccountPojo  account;
+    private DBOpenHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -189,6 +191,7 @@ public class Home extends AppCompatActivity
         navigation.setItemIconTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorWhite)));
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         cek_menu();
+        this.db = new DBOpenHelper(this);
 
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if(ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Home.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -221,7 +224,7 @@ public class Home extends AppCompatActivity
             @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<ServicesDoctorsPojo>>> call, @NonNull Response<ResponsePojo<List<ServicesDoctorsPojo>>> response)
             {
                 daftar_poli.addAll(response.body().getData().getResult());
-                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli);
+                AdapterLayanan androidListLayanan = new AdapterLayanan(Home.this, daftar_poli, db);
                 androidListViewLayanan.setAdapter(androidListLayanan);
             }
 
@@ -275,7 +278,7 @@ public class Home extends AppCompatActivity
             @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<List<DoctorsServicesPojo>>> call, @NonNull Response<ResponsePojo<List<DoctorsServicesPojo>>> response)
             {
                 daftar_dokter.addAll(response.body().getData().getResult());
-                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter);
+                AdapterDokter androidListDokter = new AdapterDokter(Home.this, daftar_dokter, db);
                 androidListViewDokter.setAdapter(androidListDokter);
             }
 
@@ -492,6 +495,22 @@ public class Home extends AppCompatActivity
         return geoApiContext.setQueryRateLimit(3).setApiKey(getString(R.string.google_maps_dir_key)).setConnectTimeout(1, TimeUnit.SECONDS).setReadTimeout(1, TimeUnit.SECONDS).setWriteTimeout(1, TimeUnit.SECONDS);
     }
 
+    public DBOpenHelper getDb()
+    {
+        return this.db;
+    }
+
+    public void setDb(DBOpenHelper db)
+    {
+        this.db = db;
+    }
+
+    @Override protected void onDestroy()
+    {
+        this.db.close();
+        super.onDestroy();
+    }
+
     class getLokasi extends AsyncTask<String, String, DirectionsResult>
     {
         /**
@@ -642,5 +661,4 @@ public class Home extends AppCompatActivity
         }
 
     }
-
 }

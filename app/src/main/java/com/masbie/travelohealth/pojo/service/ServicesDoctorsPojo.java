@@ -31,10 +31,11 @@ public class ServicesDoctorsPojo extends ServicePojo
         this.doctors = doctors;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServicePojo.inferenceGsonBuilder(builder);
         DoctorPojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public List<DoctorPojo> getDoctors()

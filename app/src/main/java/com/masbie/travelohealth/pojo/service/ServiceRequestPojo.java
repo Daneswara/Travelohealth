@@ -29,10 +29,11 @@ public class ServiceRequestPojo
         this.date = date;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         builder.registerTypeAdapter(LocalDate.class, new JodaLocalDateSerialization());
         builder.registerTypeAdapter(LocalDate.class, new JodaLocalDateDeserialization());
+        return builder;
     }
 
     @Nullable public Integer getDoctorId()

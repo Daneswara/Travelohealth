@@ -18,7 +18,7 @@ import org.joda.time.LocalTime;
 public class DoctorsServicesPojo extends DoctorPojo
 {
     @SerializedName("service")
-    @Nullable private List<ServiceOperatedPojo> services;
+    @Nullable List<ServiceOperatedPojo> services;
 
     public DoctorsServicesPojo(@Nullable List<ServiceOperatedPojo> services)
     {
@@ -31,10 +31,11 @@ public class DoctorsServicesPojo extends DoctorPojo
         this.services = services;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         DoctorPojo.inferenceGsonBuilder(builder);
         ServiceOperatedPojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public List<ServiceOperatedPojo> getServices()

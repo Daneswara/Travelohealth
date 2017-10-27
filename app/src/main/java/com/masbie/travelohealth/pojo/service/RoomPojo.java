@@ -16,9 +16,9 @@ import com.google.gson.annotations.SerializedName;
 public class RoomPojo
 {
     @SerializedName("id")
-    @Nullable private Integer id;
+    @Nullable Integer id;
     @SerializedName("name")
-    @Nullable private String  name;
+    @Nullable String  name;
 
     public RoomPojo()
     {
@@ -30,8 +30,9 @@ public class RoomPojo
         this.name = name;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
+        return builder;
     }
 
     @Nullable public Integer getId()

@@ -60,12 +60,13 @@ public class RoomQueuePojo
         this.timestamp = timestamp;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         builder.registerTypeAdapter(LocalDate.class, new JodaLocalDateSerialization());
         builder.registerTypeAdapter(LocalDate.class, new JodaLocalDateDeserialization());
         builder.registerTypeAdapter(LocalDateTime.class, new JodaLocalDateTimeSerialization());
         builder.registerTypeAdapter(LocalDateTime.class, new JodaLocalDateTimeDeserialization());
+        return builder;
     }
 
     @Nullable public Integer getId()
