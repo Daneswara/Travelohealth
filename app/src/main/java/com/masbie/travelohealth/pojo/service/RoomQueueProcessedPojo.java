@@ -49,9 +49,7 @@ public class RoomQueueProcessedPojo extends RoomQueuePojo
 
     public static RoomQueueProcessedPojo fromJson(String result)
     {
-        GsonBuilder builder = new GsonBuilder();
-        RoomQueueProcessedPojo.inferenceGsonBuilder(builder);
-        Gson gson = builder.create();
+        Gson gson = RoomQueueProcessedPojo.inferenceGsonBuilder(new GsonBuilder()).create();
         return gson.fromJson(result, RoomQueueProcessedPojo.class);
     }
 
