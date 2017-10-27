@@ -39,10 +39,11 @@ public class ServicePojo
         this.timeEnd = timeEnd;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeSerialization());
         builder.registerTypeAdapter(LocalTime.class, new JodaLocalTimeDeserialization());
+        return builder;
     }
 
     @Nullable public Integer getId()

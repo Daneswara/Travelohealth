@@ -33,9 +33,10 @@ public class DetailedRoomClassPojo extends RoomClassPojo
         this.ready = ready;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         RoomClassPojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public Integer getCapacity()

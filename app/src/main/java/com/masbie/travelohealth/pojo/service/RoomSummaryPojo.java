@@ -45,9 +45,10 @@ public class RoomSummaryPojo extends RoomPojo
         this.cost = cost;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         RoomPojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public String getRoomClass()

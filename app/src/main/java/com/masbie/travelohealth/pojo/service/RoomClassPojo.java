@@ -39,8 +39,9 @@ public class RoomClassPojo
         this.preview = preview;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
+        return builder;
     }
 
     @Nullable public Integer getId()

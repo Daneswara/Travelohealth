@@ -34,9 +34,10 @@ public class ServiceOperatedPojo extends ServicePojo
         this.operationEnd = operationEnd;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServicePojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public LocalTime getOperationStart()

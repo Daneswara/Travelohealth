@@ -40,10 +40,11 @@ public class RoomQueueProcessedPojo extends RoomQueuePojo
         this.queueProcessed = queueProcessed;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         RoomSummaryPojo.inferenceGsonBuilder(builder);
         RoomQueuePojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     public static RoomQueueProcessedPojo fromJson(String result)

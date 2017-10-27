@@ -36,9 +36,10 @@ public class ServiceQueueProcessedPojo extends ServiceQueuePojo
         this.queueProcessed = queueProcessed;
     }
 
-    public static void inferenceGsonBuilder(@NonNull GsonBuilder builder)
+    public static GsonBuilder inferenceGsonBuilder(@NonNull GsonBuilder builder)
     {
         ServiceQueuePojo.inferenceGsonBuilder(builder);
+        return builder;
     }
 
     @Nullable public Integer getQueueProcessed()
