@@ -19,7 +19,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.masbie.travelohealth.dao.external.Dao;
+import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
 import com.masbie.travelohealth.dao.external.request.RegisterDao;
+import com.masbie.travelohealth.dao.internal.queue.ServiceDao;
+import com.masbie.travelohealth.db.DBOpenHelper;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
@@ -36,7 +39,6 @@ import org.joda.time.format.DateTimeFormatter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import timber.log.Timber;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
@@ -44,10 +46,11 @@ import timber.log.Timber;
 
 @SuppressWarnings({"FieldCanBeLocal", "ConstantConditions", "unused"}) public class AdapterLayanan extends ArrayAdapter<ServicesDoctorsPojo>
 {
-    private Context                   context;
-    private List<ServicesDoctorsPojo> daftar_poli;
-    private BottomNavigationView      navigation;
-    private LinearLayout              fl, f2;
+    private final DBOpenHelper              db;
+    private       Context                   context;
+    private       List<ServicesDoctorsPojo> daftar_poli;
+    private       BottomNavigationView      navigation;
+    private       LinearLayout              fl, f2;
     private FirebaseAuth      mAuth;
     private DatabaseReference mDatabase;
     private FirebaseStorage   storage = FirebaseStorage.getInstance();
@@ -56,7 +59,7 @@ import timber.log.Timber;
     private Random            random  = new Random();
     private DateTimeZone      zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
 
-    public AdapterLayanan(Activity context, List<ServicesDoctorsPojo> daftar_poli)
+    public AdapterLayanan(Activity context, List<ServicesDoctorsPojo> daftar_poli, DBOpenHelper db)
     {
         super(context, R.layout.layout_layanan_listview, daftar_poli);
         mAuth = FirebaseAuth.getInstance();
@@ -66,6 +69,7 @@ import timber.log.Timber;
         fl = context.findViewById(R.id.transaksi);
         f2 = context.findViewById(R.id.layanan);
         navigation = context.findViewById(R.id.navigation);
+        this.db = db;
     }
 
 
@@ -153,9 +157,8 @@ import timber.log.Timber;
                                             @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                                             {
                                                 ServiceQueueProcessedPojo queue = response.body().getData().getResult();
-                                                Timber.d(String.valueOf(queue));
-                                                //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
-                                                //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
+                                                ServiceDao.insertOrUpdate(db, queue);
+                                                FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
                                                 sDialog
                                                         .setTitleText("Berhasil!")
                                                         .setContentText("Anda telah masuk dalam antrian!")
