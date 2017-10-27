@@ -49,6 +49,27 @@ public class DBOpenHelper extends SQLiteOpenHelper
                     "`doctor_start` TEXT," +
                     "`doctor_end` TEXT," +
                     "`queue_processed` INTEGER" +
+                ");");
+        db.execSQL("" +
+                "CREATE TABLE IF NOT EXISTS `room_queue`" +
+                "(" +
+                    "`id` INTEGER PRIMARY KEY," +
+                    "`queue` INTEGER," +
+                    "`u_group` INTEGER," +
+                    "`rcs` INTEGER," +
+                    "`order` TEXT," +
+                    "`validity` TEXT," +
+                    "`processed` INTEGER," +
+                    "`message` STRING," +
+                    "`room` INTEGER," +
+                    "`create_at` TEXT," +
+                    "`room_id` INTEGER," +
+                    "`room_name` TEXT," +
+                    "`room_class` TEXT," +
+                    "`room_sector` TEXT," +
+                    "`room_feature` TEXT," +
+                    "`room_cost` TEXT," +
+                    "`queue_processed` INTEGER" +
                 ");" +
                 "");
         // @formatter:on
@@ -63,6 +84,8 @@ public class DBOpenHelper extends SQLiteOpenHelper
         // @formatter:off
         db.execSQL("" +
                 "DROP TABLE IF EXISTS `service_queue`;" +
+                "" +
+                "DROP TABLE IF EXISTS `room_queue`;" +
                 "" +
                 "");
         // @formatter:on
