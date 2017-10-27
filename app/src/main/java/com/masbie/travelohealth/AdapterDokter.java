@@ -1,45 +1,46 @@
-package com.masbie.travelohealth;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import cn.pedant.SweetAlert.SweetAlertDialog;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.masbie.travelohealth.dao.external.Dao;
-import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
-import com.masbie.travelohealth.dao.external.request.RegisterDao;
-import com.masbie.travelohealth.dao.internal.queue.ServiceDao;
-import com.masbie.travelohealth.db.DBOpenHelper;
-import com.masbie.travelohealth.pojo.response.ResponsePojo;
-import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
-import com.masbie.travelohealth.pojo.service.ServiceOperatedPojo;
-import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
-import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.TimeZone;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+        package com.masbie.travelohealth;
+
+        import android.app.Activity;
+        import android.content.Context;
+        import android.graphics.Color;
+        import android.support.annotation.NonNull;
+        import android.support.design.widget.BottomNavigationView;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.ArrayAdapter;
+        import android.widget.ImageView;
+        import android.widget.LinearLayout;
+        import android.widget.TextView;
+        import android.widget.Toast;
+        import cn.pedant.SweetAlert.SweetAlertDialog;
+        import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.database.DatabaseReference;
+        import com.google.firebase.database.FirebaseDatabase;
+        import com.google.firebase.storage.FirebaseStorage;
+        import com.masbie.travelohealth.dao.external.Dao;
+        import com.masbie.travelohealth.dao.external.auth.FirebaseDao;
+        import com.masbie.travelohealth.dao.external.request.RegisterDao;
+        import com.masbie.travelohealth.dao.internal.queue.ServiceDao;
+        import com.masbie.travelohealth.db.DBOpenHelper;
+        import com.masbie.travelohealth.pojo.response.ResponsePojo;
+        import com.masbie.travelohealth.pojo.service.DoctorsServicesPojo;
+        import com.masbie.travelohealth.pojo.service.ServiceOperatedPojo;
+        import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
+        import com.masbie.travelohealth.pojo.service.ServiceRequestPojo;
+        import java.util.Calendar;
+        import java.util.List;
+        import java.util.Locale;
+        import java.util.Random;
+        import java.util.TimeZone;
+        import org.joda.time.DateTimeZone;
+        import org.joda.time.LocalDate;
+        import org.joda.time.format.DateTimeFormat;
+        import org.joda.time.format.DateTimeFormatter;
+        import retrofit2.Call;
+        import retrofit2.Callback;
+        import retrofit2.Response;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
@@ -98,10 +99,7 @@ import retrofit2.Response;
                     service.getName(),
                     service.getOperationStart().toString(hms),
                     service.getOperationEnd().toString(hms)));
-            /*
-        * Dialog Initialization ===================================================================
-        * */
-            if(!cekKetersediaan("Setiap Hari", service.getOperationStart().toString(hms), service.getOperationEnd().toString(hms)))
+            if((!cekKetersediaan("Setiap Hari", service.getOperationStart().toString(hms), service.getOperationEnd().toString(hms))))
 //        if(false)
             {
                 pesan.setText("TUTUP");
@@ -118,7 +116,7 @@ import retrofit2.Response;
                     }
                 });
             }
-        else
+            else
             {
                 pesan.setOnClickListener(new View.OnClickListener()
                 {
@@ -144,47 +142,19 @@ import retrofit2.Response;
                                     @Override
                                     public void onClick(final SweetAlertDialog sDialog)
                                     {
-                                        final ServiceOperatedPojo service  = dokter.getServices().get(0);
-                                        Integer                   doctor   = service.getId();
-                                        LocalDate                 tanggal  = new LocalDate(zone);
-                                        ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
-                                        RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
+                                        if(dokter.getServices().size() > 0)
                                         {
-                                            @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
+                                            final ServiceOperatedPojo service  = dokter.getServices().get(0);
+                                            Integer                   doctor   = service.getId();
+                                            LocalDate                 tanggal  = new LocalDate(zone);
+                                            ServiceRequestPojo        selected = new ServiceRequestPojo(doctor, tanggal);
+                                            RegisterDao.registerServiceRequest(selected, context, new Callback<ResponsePojo<ServiceQueueProcessedPojo>>()
                                             {
-                                                ServiceQueueProcessedPojo queue = response.body().getData().getResult();
-                                                ServiceDao.insertOrUpdate(db, queue);
-                                                FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
-                                                sDialog
-                                                        .setTitleText("Berhasil!")
-                                                        .setContentText("Anda telah masuk dalam antrian!")
-                                                        .setConfirmText("OK")
-                                                        .showCancelButton(false)
-                                                        .setConfirmClickListener(null)
-                                                        .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
-                                            }
-
-                                            @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
-                                            {
-                                                Dao.defaultFailureTask(context, call, throwable);
-                                            }
-                                        });
-                                        /*Calendar calendar = Calendar.getInstance();
-                                        String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                        mDatabase.child("antrian").child(tanggal).child(dokter.poli).addListenerForSingleValueEvent(new ValueEventListener()
-                                        {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot)
-                                            {
-                                                Calendar calendar = Calendar.getInstance();
-                                                String   tanggal  = new SimpleDateFormat("ddMMyyyy").format(calendar.getTime());
-                                                calendar.add(Calendar.HOUR, 2);
-                                                if(!dataSnapshot.hasChild("antrian"))
+                                                @Override public void onResponse(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<ServiceQueueProcessedPojo>> response)
                                                 {
-                                                    ServiceQueuePojo queue = response.body().getData().getResult();
-                                                    //Simpan ke DB atau firebase terserah enaknya gimana buat trigger notif
-                                                    //Implementasi ini sama persis dengan AdapterLayanan jadi 1 db
-                                                    //FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
+                                                    ServiceQueueProcessedPojo queue = response.body().getData().getResult();
+                                                    ServiceDao.insertOrUpdate(db, queue);
+                                                    FirebaseDao.subscribe(String.format(Locale.getDefault(), "service-%s-%d", queue.getOrder().toString(ymd), queue.getService().getId()));
                                                     sDialog
                                                             .setTitleText("Berhasil!")
                                                             .setContentText("Anda telah masuk dalam antrian!")
@@ -194,7 +164,7 @@ import retrofit2.Response;
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
 
-                                                @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueuePojo>> call, @NonNull Throwable throwable)
+                                                @Override public void onFailure(@NonNull Call<ResponsePojo<ServiceQueueProcessedPojo>> call, @NonNull Throwable throwable)
                                                 {
                                                     Dao.defaultFailureTask(context, call, throwable);
                                                 }
@@ -223,6 +193,9 @@ import retrofit2.Response;
              .load(storageRef)
              .into(mimageView);*/
 
+        /*
+        * Dialog Initialization ===================================================================
+        * */
 
 
         return viewRow;
