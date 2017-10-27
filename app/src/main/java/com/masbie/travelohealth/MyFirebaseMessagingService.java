@@ -12,6 +12,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.masbie.travelohealth.dao.internal.queue.RoomDao;
 import com.masbie.travelohealth.dao.internal.queue.ServiceDao;
 import com.masbie.travelohealth.db.DBOpenHelper;
 import com.masbie.travelohealth.pojo.service.RoomQueueNotificationPojo;
@@ -82,6 +83,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService
                             }
                             break;
                         }
+                        RoomDao.insertOrUpdate(db, summary);
                     }
                 }
             }
@@ -156,23 +158,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService
     {
         Timber.d("processServiceQueue");
 
-        /*Collection<RoomQueueProcessedPojo> queues = Storage.getInstance(this).retrieveRoomQueue(RoomQueueProcessedPojo.inferenceGsonBuilder(new GsonBuilder()).create()).values();
+        List<RoomQueueProcessedPojo> queues = RoomDao.findWhereOrder(this.db, notification.getOrder());
         for(RoomQueueProcessedPojo queue : queues)
         {
-            if((queue.getOrder().isEqual(notification.getOrder())))
+            if(queue.getQueue().intValue() == notification.getProcessed().intValue())
             {
-                if(queue.getQueue().intValue() == notification.getProcessed().intValue())
-                {
-                    this.sendNotification("Pemesanan Kamar", "Pemesanan Anda Sedang Diproses");
-                    break;
-                }
-                else if(queue.getQueue() > notification.getProcessed())
-                {
-                    this.sendNotification("Pemesanan Kamar", String.format(Locale.getDefault(), "Pemesanan anda akan diproses %d antrian lagi", queue.getQueue() - notification.getProcessed()));
-                    break;
-                }
+                this.sendNotification("Pemesanan Kamar", "Pemesanan Anda Sedang Diproses");
             }
-        }*/
+            else if(queue.getQueue() > notification.getProcessed())
+            {
+                this.sendNotification("Pemesanan Kamar", String.format(Locale.getDefault(), "Pemesanan anda akan diproses %d antrian lagi", queue.getQueue() - notification.getProcessed()));
+            }
+            else
+            {
+                continue;
+            }
+            queue.setQueueProcessed(notification.getProcessed());
+            RoomDao.insertOrUpdate(db, queue);
+        }
     }
 
     /**
