@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -132,7 +132,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService
 
         //Collection<ServiceQueuePojo> queues = Storage.getInstance(this).retrieveServiceQueue(ServiceQueuePojo.inferenceGsonBuilder(new GsonBuilder()).create()).values();
 
-        @Nullable List<ServiceQueueProcessedPojo> queues = ServiceDao.findWhereServiceIDAndOrder(this.db, notification.getService(), notification.getOrder());
+        @NonNull List<ServiceQueueProcessedPojo> queues = ServiceDao.findWhereServiceIDAndOrder(this.db, notification.getService(), notification.getOrder());
         for(ServiceQueueProcessedPojo queue : queues)
         {
             if(queue.getQueue().intValue() == notification.getProcessed().intValue())
