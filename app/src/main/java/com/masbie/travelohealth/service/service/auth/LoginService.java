@@ -8,11 +8,14 @@ package com.masbie.travelohealth.service.service.auth;
  * Github       : syafiqq
  */
 
+import com.masbie.travelohealth.pojo.auth.Register;
 import com.masbie.travelohealth.pojo.auth.TokenPojo;
 import com.masbie.travelohealth.pojo.auth.UserLoginPojo;
 import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 
@@ -23,4 +26,8 @@ public interface LoginService
 
     @GET("/m/api/patient/ping")
     Call<ResponsePojo<Void>> ping();
+
+    @FormUrlEncoded
+    @POST("/m/api/patient/auth/register")
+    Call<Register> register(@Field("username") String username, @Field("password") String password, @Field("password_conf") String password_conf);
 }

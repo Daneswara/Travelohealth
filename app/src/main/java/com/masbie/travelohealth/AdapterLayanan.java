@@ -166,7 +166,13 @@ import retrofit2.Response;
                                                         .setContentText("Anda telah masuk dalam antrian!")
                                                         .setConfirmText("OK")
                                                         .showCancelButton(false)
-                                                        .setConfirmClickListener(null)
+                                                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                            @Override
+                                                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                                navigation.setSelectedItemId(R.id.navigation_home);
+                                                                sDialog.dismissWithAnimation();
+                                                            }
+                                                        })
                                                         .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                             }
 

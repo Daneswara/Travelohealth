@@ -3,6 +3,7 @@
 
         import android.app.Activity;
         import android.content.Context;
+        import android.content.Intent;
         import android.graphics.Color;
         import android.support.annotation.NonNull;
         import android.support.design.widget.BottomNavigationView;
@@ -160,7 +161,13 @@
                                                             .setContentText("Anda telah masuk dalam antrian!")
                                                             .setConfirmText("OK")
                                                             .showCancelButton(false)
-                                                            .setConfirmClickListener(null)
+                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                                                @Override
+                                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                                                    navigation.setSelectedItemId(R.id.navigation_home);
+                                                                    sDialog.dismissWithAnimation();
+                                                                }
+                                                            })
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
 

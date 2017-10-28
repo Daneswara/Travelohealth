@@ -100,7 +100,7 @@
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Enter Email</string>
+    <string name="prompt_email">Enter Username</string>
     <string name="prompt_password">Enter Password</string>
     <string name="prompt_password_cek">Repeat Password</string>
     <string name="action_sign_in">Sign in</string>

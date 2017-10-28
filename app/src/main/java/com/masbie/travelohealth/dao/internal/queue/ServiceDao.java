@@ -161,4 +161,83 @@ public class ServiceDao
         return result;
     }
 
+    public static List<ServiceQueueProcessedPojo> findWhereOrder(DBOpenHelper helper, LocalDate order)
+    {
+        Timber.d("findWhereServiceIDAndOrder");
+
+        @NonNull final SQLiteDatabase             db     = helper.getReadableDatabase();
+        @Nullable List<ServiceQueueProcessedPojo> result = new LinkedList<>();
+        try
+        {
+            // Define a projection that specifies which columns from the database
+            // you will actually use after this query.
+            String[] projection = {
+                    "`id`",
+                    "`queue`",
+                    "`order`",
+                    "`timestamp`",
+                    "`start`",
+                    "`end`",
+                    "`service_id`",
+                    "`service_name`",
+                    "`service_start`",
+                    "`service_end`",
+                    "`doctor_id`",
+                    "`doctor_name`",
+                    "`doctor_start`",
+                    "`doctor_end`",
+                    "`queue_processed`"
+            };
+
+            String   selection     = "`order` = ?";
+            String[] selectionArgs = {order.toString(Util.formatLocalDate)};
+
+            Cursor cursor = db.query(
+                    "`service_queue`",                     // The table to query
+                    projection,                               // The columns to return
+                    selection,                                // The columns for the WHERE clause
+                    selectionArgs,                            // The values for the WHERE clause
+                    null,                                     // don't group the rows
+                    null,                                     // don't filter by row groups
+                    null                                 // The sort order
+            );
+
+            int id;
+            while(cursor.moveToNext())
+            {
+                // @formatter:off
+                result.add(new ServiceQueueProcessedPojo(
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("id")) ? null : cursor.getInt(id),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("queue")) ? null : cursor.getInt(id),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("order")) ? null : Util.formatLocalDate.parseLocalDate(cursor.getString(id)),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("timestamp")) ? null : Util.formatLocalDateTime.parseLocalDateTime(cursor.getString(id)),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("start")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id)),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("end")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id)),
+                        new ServicePojo(
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("service_id")) ? null : cursor.getInt(id),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("service_name")) ? null : cursor.getString(id),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("service_start")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id)),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("service_end")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id))
+                        ),
+                        new DoctorPojo(
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("doctor_id")) ? null : cursor.getInt(id),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("doctor_name")) ? null : cursor.getString(id),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("doctor_start")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id)),
+                                cursor.isNull(id = cursor.getColumnIndexOrThrow("doctor_end")) ? null : Util.formatLocalTime.parseLocalTime(cursor.getString(id))
+                        ),
+                        cursor.isNull(id = cursor.getColumnIndexOrThrow("queue_processed")) ? null : cursor.getInt(id)
+                ));
+                // @formatter:on
+            }
+            cursor.close();
+
+        }
+        finally
+        {
+            db.close();
+        }
+
+        return result;
+    }
+
 }

@@ -17,8 +17,15 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.maps.model.DirectionsResult;
 import com.masbie.travelohealth.object.Antrian;
+import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
+
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Created by Daneswara Jauhari on 06/08/2017.
@@ -28,17 +35,16 @@ public class AdapterTransaksiSekarang extends ArrayAdapter
 {
     Context          context;
     DirectionsResult result;
-    List<Antrian>    daftar_antrian;
-    long             proses;
+    List<ServiceQueueProcessedPojo>    daftar_antrian;
     FirebaseStorage storage = FirebaseStorage.getInstance();
+    private DateTimeZone zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
 
-    public AdapterTransaksiSekarang(Activity context, List<Antrian> daftar_antrian, DirectionsResult result, long proses)
+    public AdapterTransaksiSekarang(Activity context, List<ServiceQueueProcessedPojo> daftar_antrian, DirectionsResult result)
     {
         super(context, R.layout.layout_transaksi_listview, daftar_antrian);
         this.context = context;
         this.daftar_antrian = daftar_antrian;
         this.result = result;
-        this.proses = proses;
     }
 
     @Override
@@ -54,15 +60,24 @@ public class AdapterTransaksiSekarang extends ArrayAdapter
         TextView  pelayanan      = viewRow.findViewById(R.id.estimasipelayanan);
         TextView  perjalanan     = viewRow.findViewById(R.id.estimasiperjalanan);
         Button    detail         = viewRow.findViewById(R.id.detail);
-        mtextView.setText("No. " + daftar_antrian.get(i).no_antrian);
-        antriansaatini.setText("Saat ini antrian ke-" + proses);
-        CharSequence estimasi = DateUtils.getRelativeTimeSpanString(daftar_antrian.get(i).pelayanan, Calendar.getInstance().getTimeInMillis(), 0);
+        mtextView.setText("No. " + daftar_antrian.get(i).getQueue());
+        if(daftar_antrian.get(i).getQueueProcessed()==null){
+            antriansaatini.setText("Saat ini belum ada yang diproses");
+        } else {
+            antriansaatini.setText("Saat ini antrian ke-" + daftar_antrian.get(i).getQueueProcessed());
+        }
+        DateTime utc = daftar_antrian.get(i).getTimestamp().toDateTime(zone);
+        long secondsSinceEpoch = utc.getMillis();
+        DateTime sekarang = new DateTime().withZone(zone);
+        long datenow = sekarang.getMillis();
+        CharSequence estimasi = DateUtils.getRelativeTimeSpanString(secondsSinceEpoch, datenow, 0);
         pelayanan.setText(estimasi);
-        StorageReference storageRef = storage.getReference().child("images/" + daftar_antrian.get(i).gambar);
-        Glide.with(context)
-             .using(new FirebaseImageLoader())
-             .load(storageRef)
-             .into(mimageView);
+        mimageView.setImageResource(R.drawable.klinikpenyakitdalam);
+//        StorageReference storageRef = storage.getReference().child("images/" + daftar_antrian.get(i).gambar);
+//        Glide.with(context)
+//             .using(new FirebaseImageLoader())
+//             .load(storageRef)
+//             .into(mimageView);
         detail.setOnClickListener(new View.OnClickListener()
         {
             @Override
