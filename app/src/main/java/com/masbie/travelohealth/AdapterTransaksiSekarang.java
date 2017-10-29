@@ -3,6 +3,7 @@ package com.masbie.travelohealth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
@@ -22,7 +25,9 @@ import com.masbie.travelohealth.pojo.service.ServiceQueueProcessedPojo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -63,13 +68,20 @@ public class AdapterTransaksiSekarang extends ArrayAdapter
         mtextView.setText("No. " + daftar_antrian.get(i).getQueue());
         if(daftar_antrian.get(i).getQueueProcessed()==null){
             antriansaatini.setText("Saat ini belum ada yang diproses");
+
         } else {
             antriansaatini.setText("Saat ini antrian ke-" + daftar_antrian.get(i).getQueueProcessed());
+
         }
-        DateTime utc = daftar_antrian.get(i).getTimestamp().toDateTime(zone);
-        long secondsSinceEpoch = utc.getMillis();
+
+//        Timestamp ts = new Timestamp(daftar_antrian.get(i).getTimestamp().toDate(TimeZone.getTimeZone("Asia/Jakarta")).getTime());
+        zone    = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+        DateTime dt = new LocalDateTime(daftar_antrian.get(i).getTimestamp()).toDateTime(zone).plusHours(9);
+        long secondsSinceEpoch = dt.getMillis();
+
         DateTime sekarang = new DateTime().withZone(zone);
         long datenow = sekarang.getMillis();
+
         CharSequence estimasi = DateUtils.getRelativeTimeSpanString(secondsSinceEpoch, datenow, 0);
         pelayanan.setText(estimasi);
         mimageView.setImageResource(R.drawable.klinikpenyakitdalam);
@@ -78,22 +90,32 @@ public class AdapterTransaksiSekarang extends ArrayAdapter
 //             .using(new FirebaseImageLoader())
 //             .load(storageRef)
 //             .into(mimageView);
-        detail.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Intent intent = new Intent(context, DetailTransaksi.class);
-                context.startActivity(intent);
-            }
-        });
+
         if(result == null || result.routes.length == 0)
         {
+            detail.setBackgroundColor(Color.GRAY);
+            detail.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Toast.makeText(context, "Lokasi anda tidak dapat dideteksi, pastikan GPS anda aktif!", Toast.LENGTH_SHORT).show();
+                }
+            });
             perjalanan.setText("estimasi waktu tidak tersedia");
         }
         else
         {
             perjalanan.setText(result.routes[0].legs[0].duration.humanReadable);
+            detail.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    Intent intent = new Intent(context, DetailTransaksi.class);
+                    context.startActivity(intent);
+                }
+            });
         }
         return viewRow;
     }

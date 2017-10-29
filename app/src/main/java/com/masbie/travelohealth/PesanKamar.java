@@ -17,7 +17,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -30,6 +32,7 @@ import com.masbie.travelohealth.pojo.response.ResponsePojo;
 import com.masbie.travelohealth.pojo.service.RoomQueueProcessedPojo;
 import com.masbie.travelohealth.pojo.service.RoomRequestPojo;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,54 +42,51 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PesanKamar extends AppCompatActivity implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener
-{
+public class PesanKamar extends AppCompatActivity implements com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener {
     private static final int REQUEST_IMAGE_CAPTURE = 0x01;
-    private Button    tanggal;
-    private Button    upload;
+    private Button tanggal;
+    private Button upload;
     private ImageView gambar;
 
-    private File              gambarUpload;
-    private String            photoTaken;
+    private File gambarUpload;
+    private String photoTaken;
     private DatabaseReference mDatabase;
-    private SweetAlertDialog  proses_kirim;
-    private FirebaseStorage   storage        = FirebaseStorage.getInstance();
-    private Bitmap            imageBitmap    = null;
-    private LocalDate         tanggalpilihan = null;
-    private DateTimeFormatter hms            = DateTimeFormat.forPattern("HH:mm:ss");
-    private DateTimeFormatter ymd            = DateTimeFormat.forPattern("YYYY-MM-dd");
-    private Random            random         = new Random();
-    private DateTimeZone      zone           = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+    private SweetAlertDialog proses_kirim;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private Bitmap imageBitmap = null;
+    private LocalDate tanggalpilihan = null;
+    private DateTimeFormatter hms = DateTimeFormat.forPattern("HH:mm:ss");
+    private DateTimeFormatter ymd = DateTimeFormat.forPattern("YYYY-MM-dd");
+    private Random random = new Random();
+    private DateTimeZone zone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
     private DBOpenHelper db;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pesan_kamar);
         Toolbar toolbar = findViewById(R.id.toolbar);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        final String  getGambar = getIntent().getExtras().getString("gambar", null);
-        final Integer getKamar  = getIntent().getExtras().getInt("id_kamar", 0);
-        final String  getKelas  = getIntent().getExtras().getString("kelas", null);
-        final double  getHarga  = getIntent().getExtras().getDouble("harga", 0);
+        final String getGambar = getIntent().getExtras().getString("gambar", null);
+        final Integer getKamar = getIntent().getExtras().getInt("id_kamar", 0);
+        final String getKelas = getIntent().getExtras().getString("kelas", null);
+        final double getHarga = getIntent().getExtras().getDouble("harga", 0);
 
-        if(getKamar == 0)
-        {
+        if (getKamar == 0) {
             finish();
-        }
-        else
-        {
+        } else {
             this.db = new DBOpenHelper(this);
             toolbar.setTitle("Pesan Kamar " + getKelas);
             ImageView toolbar_layout = findViewById(R.id.image_toolbar);
@@ -98,48 +98,37 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                  .into(toolbar_layout);*/
 
             FloatingActionButton fab = findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener()
-            {
+            fab.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view)
-                {
-                    if(tanggalpilihan == null)
-                    {
+                public void onClick(View view) {
+                    if (tanggalpilihan == null) {
                         new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.ERROR_TYPE)
                                 .setTitleText("Pilih Tanggal Pemesanan!")
                                 .setConfirmText("OK")
                                 .showCancelButton(false)
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                                {
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog)
-                                    {
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
                                         sweetAlertDialog.dismissWithAnimation();
                                     }
                                 })
                                 .show();
-                    }
-                    else
-                    {
+                    } else {
                         new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.WARNING_TYPE)
                                 .setTitleText("Apa anda yakin?")
                                 .setContentText("Anda akan memesan kamar pada tanggal " + tanggalpilihan + "!")
                                 .setConfirmText("Ya, saya yakin!")
                                 .setCancelText("Batal")
                                 .showCancelButton(true)
-                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener()
-                                {
+                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
-                                    public void onClick(SweetAlertDialog sDialog)
-                                    {
+                                    public void onClick(SweetAlertDialog sDialog) {
                                         sDialog.cancel();
                                     }
                                 })
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                                {
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
-                                    public void onClick(final SweetAlertDialog sDialog)
-                                    {
+                                    public void onClick(final SweetAlertDialog sDialog) {
                                         proses_kirim = new SweetAlertDialog(PesanKamar.this, SweetAlertDialog.PROGRESS_TYPE);
                                         proses_kirim.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
                                         proses_kirim.setTitleText("Loading");
@@ -151,15 +140,14 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                         //final long       time       = calendar.getTimeInMillis();
 
                                         //InputStream stream = null;
-                                        if(gambarUpload != null)
-                                        {
-                                            Integer         room     = getKamar;
-                                            LocalDate       tanggal  = tanggalpilihan;
+                                        if (gambarUpload != null) {
+                                            Integer room = getKamar;
+                                            LocalDate tanggal = tanggalpilihan;
                                             RoomRequestPojo selected = new RoomRequestPojo(room, tanggal);
-                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueProcessedPojo>>()
-                                            {
-                                                @SuppressWarnings("ConstantConditions") @Override public void onResponse(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<RoomQueueProcessedPojo>> response)
-                                                {
+                                            RegisterDao.registerRoomRequest(selected, gambarUpload, PesanKamar.this, new Callback<ResponsePojo<RoomQueueProcessedPojo>>() {
+                                                @SuppressWarnings("ConstantConditions")
+                                                @Override
+                                                public void onResponse(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Response<ResponsePojo<RoomQueueProcessedPojo>> response) {
                                                     RoomQueueProcessedPojo queue = response.body().getData().getResult();
                                                     RoomDao.insertOrUpdate(db, queue);
                                                     FirebaseDao.subscribe(String.format(Locale.getDefault(), "room-%s", queue.getOrder().toString(ymd)));
@@ -169,11 +157,9 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .setContentText("Tunggu konfirmasi dari operator!")
                                                             .setConfirmText("OK")
                                                             .showCancelButton(false)
-                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                                                            {
+                                                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                                                 @Override
-                                                                public void onClick(SweetAlertDialog sweetAlertDialog)
-                                                                {
+                                                                public void onClick(SweetAlertDialog sweetAlertDialog) {
 //                                                                    Intent intent = new Intent(PesanKamar.this, Home.class);
 //                                                                    startActivity(intent);
                                                                     finish();
@@ -182,8 +168,9 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
 
-                                                @Override public void onFailure(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Throwable throwable)
-                                                {
+                                                @Override
+                                                public void onFailure(@NonNull Call<ResponsePojo<RoomQueueProcessedPojo>> call, @NonNull Throwable throwable) {
+                                                    proses_kirim.dismissWithAnimation();
                                                     Dao.defaultFailureTask(PesanKamar.this, call, throwable);
                                                 }
                                             });
@@ -245,20 +232,16 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
                                                             .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
                                                 }
                                             });*/
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             proses_kirim.dismissWithAnimation();
                                             sDialog
                                                     .setTitleText("Upload Surat Rujukan!")
                                                     .setContentText("Mohon upload surat rujukan dengan melakukan foto pada surat!")
                                                     .setConfirmText("OK")
                                                     .showCancelButton(false)
-                                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener()
-                                                    {
+                                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                                         @Override
-                                                        public void onClick(SweetAlertDialog sweetAlertDialog)
-                                                        {
+                                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
                                                             sDialog.dismissWithAnimation();
                                                         }
                                                     })
@@ -276,11 +259,9 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
         upload = findViewById(R.id.upload);
         gambar = findViewById(R.id.gambar);
 
-        tanggal.setOnClickListener(new View.OnClickListener()
-        {
+        tanggal.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 Calendar now = Calendar.getInstance();
                 com.wdullaer.materialdatetimepicker.date.DatePickerDialog dpd = com.wdullaer.materialdatetimepicker.date.DatePickerDialog.newInstance(
                         PesanKamar.this,
@@ -296,34 +277,26 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
             }
         });
 
-        upload.setOnClickListener(new View.OnClickListener()
-        {
+        upload.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 photoTaken = null;
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 // Ensure that there's a camera activity to handle the intent
-                if(takePictureIntent.resolveActivity(getPackageManager()) != null)
-                {
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     // Create the File where the photo should go
                     File photoFile = null;
-                    try
-                    {
+                    try {
                         photoFile = createImagePath();
-                    }
-                    catch(IOException ex)
-                    {
+                    } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                     // Continue only if the File was successfully created
                     photoTaken = photoFile.getName().toString();
-                    if(photoFile != null)
-                    {
-                        Uri               uri                      = FileProvider.getUriForFile(getApplicationContext(), "com.masbie.travelohealth.fileprovider", photoFile);
+                    if (photoFile != null) {
+                        Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.masbie.travelohealth.fileprovider", photoFile);
                         List<ResolveInfo> resolvedIntentActivities = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                        for(ResolveInfo resolvedIntentInfo : resolvedIntentActivities)
-                        {
+                        for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
                             String packageName = resolvedIntentInfo.activityInfo.packageName;
 
                             grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -337,8 +310,7 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
 
     }
 
-    public File createImagePath() throws IOException
-    {
+    public File createImagePath() throws IOException {
         // Create an image file name
         File storageDir = this.getFilesDir();
         File image = File.createTempFile(
@@ -352,26 +324,19 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
-        {
-            if(this.photoTaken != null)
-            {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            if (this.photoTaken != null) {
                 gambarUpload = new File(getFilesDir(), photoTaken);
-                try
-                {
+                try {
                     Bitmap b = BitmapFactory.decodeStream(new FileInputStream(gambarUpload));
-                    if(b != null)
-                    {
+                    if (b != null) {
 
                         gambar.setImageBitmap(b);
                         //                        this.onSubmitRoomButtonClickedCommit(imageFile);
                     }
-                }
-                catch(FileNotFoundException e)
-                {
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -379,16 +344,14 @@ public class PesanKamar extends AppCompatActivity implements com.wdullaer.materi
     }
 
     @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth)
-    {
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         tanggalpilihan = ymd.parseDateTime(String.format(Locale.getDefault(), "%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)).toLocalDate();
         tanggal.setText("Tanggal Pesan: " + tanggalpilihan.toString(ymd));
     }
 
-    @Override protected void onDestroy()
-    {
-        if(this.db != null)
-        {
+    @Override
+    protected void onDestroy() {
+        if (this.db != null) {
             this.db.close();
         }
         super.onDestroy();

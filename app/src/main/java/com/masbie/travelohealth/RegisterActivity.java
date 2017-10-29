@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -98,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         setupActionBar();
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
         // Set up the login form.
 //        mEmailView = findViewById(R.id.email);
 //        populateAutoComplete();
@@ -128,7 +130,21 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-//
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent regis = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(regis);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    //
 //    private void populateAutoComplete()
 //    {
 //        if(!mayRequestContacts())
@@ -300,7 +316,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                             if (response.body().getData().getMessage().getMessage().get(0).equals("Account Successfully Created")) {
                                 new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.WARNING_TYPE)
                                         .setTitleText("Akun Berhasil Dibuat")
-                                        .setContentText("Gunakan username "+response.body().getData().getResult().getCoupon()+" untuk login")
+                                        .setContentText("Gunakan username " + response.body().getData().getResult().getCoupon() + " untuk login")
                                         .setConfirmText("Ya")
                                         .showCancelButton(false)
                                         .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
